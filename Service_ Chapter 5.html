@@ -1,0 +1,1667 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>Customizable Quiz App | Notes & Balanced Answers</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: radial-gradient(circle at 10% 20%, #0a0f1e, #03060f);
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            flex-direction: column;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(59,130,246,0.15) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .quiz-container {
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+            background: rgba(12, 18, 34, 0.85);
+            backdrop-filter: blur(20px);
+            border-radius: 48px;
+            box-shadow: 0 30px 50px -20px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.08), 0 0 30px rgba(59,130,246,0.2);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        .quiz-header {
+            padding: 28px 26px 20px 26px;
+            background: linear-gradient(135deg, rgba(15, 25, 45, 0.9), rgba(8, 15, 28, 0.95));
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .badge-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #FFFFFF, #a0e9ff, #c084fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .stats-panel {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .question-counter {
+            background: rgba(139, 92, 246, 0.25);
+            backdrop-filter: blur(4px);
+            padding: 6px 16px;
+            border-radius: 60px;
+            font-bbbubbbbbbbb: 0.85rem;
+            font-weight: 600;
+            color: #c084fc;
+            border: 1px solid rgba(139, 92, 246, 0.5);
+        }
+
+        .progress-track {
+            margin-top: 14px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #3b82f6, #a855f7);
+            border-radius: 20px;
+            transition: width 0.5s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            box-shadow: 0 0 8px rgba(59,130,246,0.5);
+        }
+
+        .quiz-card {
+            padding: 28px 26px 32px;
+            animation: fadeSlide 0.4s ease-out;
+        }
+
+        @keyframes fadeSlide {
+            0% { opacity: 0; transform: translateY(12px);}
+            100% { opacity: 1; transform: translateY(0);}
+        }
+
+        .question-text {
+            font-size: 1.5rem;
+            font-weight: 600;
+            line-height: 1.4;
+            color: #f1f5f9;
+            margin-bottom: 28px;
+            letter-spacing: -0.2px;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .option {
+            background: rgba(20, 30, 55, 0.8);
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .option:hover:not(.disabled-opt) {
+            background: rgba(59, 130, 246, 0.25);
+            border-color: rgba(59, 130, 246, 0.6);
+            transform: translateX(5px);
+        }
+
+        .option.disabled-opt {
+            cursor: default;
+        }
+
+        .option.correct-highlight {
+            background: linear-gradient(105deg, rgba(16, 185, 129, 0.35), rgba(6, 148, 102, 0.25));
+            border-left: 5px solid #10b981;
+            border-top-left-radius: 20px;
+            border-bottom-left-radius: 20px;
+        }
+
+        .option.wrong-highlight {
+            background: linear-gradient(105deg, rgba(239, 68, 68, 0.35), rgba(185, 28, 28, 0.25));
+            border-left: 5px solid #ef4444;
+        }
+
+        .option-prefix {
+            font-weight: 800;
+            font-size: 1.1rem;
+            width: 34px;
+            height: 34px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #cbd5e6;
+        }
+
+        .option-text {
+            font-size: 0.98rem;
+            font-weight: 500;
+            color: #e2e8f0;
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .feedback-panel {
+            background: rgba(0, 0, 0, 0.55);
+            border-radius: 24px;
+            padding: 18px 22px;
+            margin: 16px 0 20px;
+            border-left: 5px solid;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(8px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+
+        .feedback-correct {
+            border-left-color: #10b981;
+            background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.05));
+        }
+
+        .feedback-wrong {
+            border-left-color: #ef4444;
+            background: linear-gradient(135deg, rgba(239,68,68,0.12), rgba(239,68,68,0.03));
+        }
+
+        .feedback-title {
+            font-weight: 800;
+            font-size: 1rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .feedback-text {
+            font-size: 0.9rem;
+            color: #cbd5e6;
+            line-height: 1.5;
+        }
+
+        .correct-title { color: #4ade80; }
+        .wrong-title { color: #f87171; }
+
+        .nav-buttons {
+            display: flex;
+            gap: 16px;
+            margin-top: 8px;
+        }
+
+        .btn {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 14px 0;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1rem;
+            color: #cbd5e1;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(95deg, #3b82f6, #8b5cf6);
+            border: none;
+            color: white;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-primary:active { transform: scale(0.97); }
+        .btn-outline:active { transform: scale(0.97); background: rgba(255,255,255,0.1);}
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none;}
+
+        .result-container {
+            text-align: center;
+            padding: 20px 0 30px;
+        }
+
+        .score-circle {
+            width: 170px;
+            height: 170px;
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border-radius: 100%;
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            border: 3px solid rgba(59, 130, 246, 0.7);
+            box-shadow: 0 0 40px rgba(59,130,246,0.3);
+        }
+
+        .score-number {
+            font-size: 4rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff, #a5f3fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .verdict {
+            font-size: 1.7rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #facc15, #f59e0b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin: 16px 0 12px;
+        }
+
+        .restart-btn {
+            background: linear-gradient(95deg, #2563eb, #7c3aed);
+            border: none;
+            padding: 16px 28px;
+            margin-top: 28px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            width: auto;
+            display: inline-block;
+        }
+
+        /* Landing / resume screens */
+        .landing, .resume-screen {
+            padding: 40px 26px;
+            text-align: center;
+        }
+
+        .landing h2, .resume-screen h2 {
+            font-size: 2rem;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #fff, #a0e9ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .landing p, .resume-screen p {
+            color: #cbd5e6;
+            margin-bottom: 32px;
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        .big-btn {
+            padding: 16px;
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.5);
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .big-btn:hover {
+            background: rgba(59, 130, 246, 0.4);
+            transform: scale(1.02);
+        }
+
+        /* Notes page */
+        .notes-page {
+            padding: 28px 26px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .notes-page h3 {
+            font-size: 1.6rem;
+            margin-bottom: 20px;
+            color: #c084fc;
+        }
+
+        .notes-content {
+            color: #e2e8f0;
+            line-height: 1.6;
+        }
+
+        .notes-content h4 {
+            margin: 20px 0 8px;
+            color: #facc15;
+        }
+
+        .notes-content ul {
+            margin-left: 20px;
+            margin-bottom: 16px;
+        }
+
+        .notes-content li {
+            margin-bottom: 6px;
+        }
+
+        .back-btn {
+            margin-top: 20px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            padding: 12px;
+            border-radius: 40px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        /* Styled "Read Short Note" button at the bottom of quiz */
+        .notes-button-wrapper {
+            padding: 20px 26px 26px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: 8px;
+        }
+
+        .notes-button {
+            background: linear-gradient(95deg, #2563eb, #7c3aed);
+            border: none;
+            border-radius: 60px;
+            padding: 16px 20px;
+            width: 100%;
+            font-weight: 700;
+            font-size: 1rem;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+        }
+
+        .notes-button:hover {
+            transform: scale(1.02);
+            background: linear-gradient(135deg, #9b6cf6, #d094fc);
+            box-shadow: 0 6px 18px rgba(139, 92, 246, 0.6);
+        }
+
+        footer {
+            font-size: 0.7rem;
+            text-align: center;
+            padding: 18px;
+            color: #4b5563;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        #developers {
+            display: flex;
+            flex-direction: column;
+            gap: .3rem;
+            font-size: 0.7rem;
+            text-align: center;
+            padding: 18px;
+            color: #4b5563;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        @media (max-width: 550px) {
+            .quiz-card { padding: 20px 18px; }
+            .question-text { font-size: 1.25rem; }
+            .option { padding: 12px 16px; }
+            .title { font-size: 1.4rem; }
+            .notes-button { padding: 14px; font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="quiz-container" id="appRoot"></div>
+<div class="developers" id="developers">Developed by:
+     <div>Ashenafi Girma
+      and
+       Talaksew Agegnehu</div>
+</div>
+
+
+<script>
+    // ===================== CONFIGURATION (EASY TO CHANGE) =====================
+    // 1. Subject name – used in titles and verdict messages
+    const SUBJECT_NAME = "Safety: Introduction";
+
+    // 2. Questions data – each object: { text, options: [4 strings], correct: index (0-3), explanation }
+const QUESTIONS_DATA =[
+  {
+    "id": 1,
+    "text": "Which of the following is classified as a 'Body Building' food?",
+    "options": ["Bread and cereals", "Fruits and vegetables", "Meats and milk products", "Fats and sugars"],
+    "correct": 2,
+    "explanation": "Meats, fish, and milk products are classified as Body Building foods, providing proteins."
+  },
+  {
+    "id": 2,
+    "text": "What is the primary function of 'Protective' foods?",
+    "options": ["To provide energy", "To build muscle tissue", "To supply vitamins and minerals", "To offer heat"],
+    "correct": 2,
+    "explanation": "Protective foods, like fruits and vegetables, provide vitamins and minerals."
+  },
+  {
+    "id": 3,
+    "text": "Which category of food includes bread and cereals?",
+    "options": ["Body Building", "Protective", "Energy/Heat Giving", "Regulative"],
+    "correct": 2,
+    "explanation": "Bread and cereals are classified as Energy or Heat Giving foods, providing carbohydrates, fats, and water."
+  },
+  {
+    "id": 4,
+    "text": "According to the manual, which type of meat is never served on Ethiopian Airlines?",
+    "options": ["Lamb", "Beef", "Pork", "Chicken"],
+    "correct": 2,
+    "explanation": "The manual explicitly notes that pork is never served on Ethiopian Airlines."
+  },
+  {
+    "id": 5,
+    "text": "What is the key characteristic of shellfish?",
+    "options": ["They have bony skeletons", "They have hard or semi-hard shell covers", "They are only found in freshwater", "They are a type of poultry"],
+    "correct": 1,
+    "explanation": "Shellfish are defined as fish that have hard or semi-hard shell covers, unlike finfish."
+  },
+  {
+    "id": 6,
+    "text": "What is the primary ingredient in a Fasting Ethiopian Orthodox meal?",
+    "options": ["Meat and eggs", "Vegetables only, with possible fish", "Only dairy products", "Meat and fish"],
+    "correct": 1,
+    "explanation": "A Fasting Ethiopian Orthodox meal consists of vegetables with no milk, meat, or egg products, with or without fish."
+  },
+  {
+    "id": 7,
+    "text": "What does the abbreviation 'KSM' stand for in the context of special meals?",
+    "options": ["Kosher meal", "Kid's meal", "Korean meal", "Ketogenic meal"],
+    "correct": 0,
+    "explanation": "KSM is the abbreviation for Kosher meal, requested by Jewish passengers."
+  },
+  {
+    "id": 8,
+    "text": "What is the correct procedure for presenting a pre-packed Kosher meal (KSML) to a passenger?",
+    "options": ["Remove the cover before heating", "Show the sealed tray to the passenger before heating", "Serve it cold without heating", "Pour it onto a standard plate before serving"],
+    "correct": 1,
+    "explanation": "The procedure for a Kosher meal is to show the sealed tray to the passenger for inspection before heating. The heat-proof cellophane cover should not be removed."
+  },
+  {
+    "id": 9,
+    "text": "Which special meal is sugar-free and carbohydrate-free?",
+    "options": ["VGML", "GFML", "DBML", "NLML"],
+    "correct": 2,
+    "explanation": "DBML is the abbreviation for a Diabetic meal, which is sugar-free and carbohydrate-free."
+  },
+  {
+    "id": 10,
+    "text": "What is a 'Vegetarian Vegan' meal (VEML)?",
+    "options": ["A meal with vegetables and dairy", "A meal with no animal products, dairy, or eggs", "A meal with vegetables and eggs", "A meal with fish and vegetables"],
+    "correct": 1,
+    "explanation": "A Vegan or pure vegetarian meal (VEML) contains no animal products, dairy, or eggs."
+  },
+  {
+    "id": 11,
+    "text": "What is the recommended temperature for heating a beef dish in a dry oven?",
+    "options": ["150°C", "160°C", "170°C", "180°C"],
+    "correct": 1,
+    "explanation": "The heating guidelines specify that beef should be heated at 160°C in a dry oven for 15 minutes."
+  },
+  {
+    "id": 12,
+    "text": "What is a potential consequence of overheating eggs?",
+    "options": ["They become watery", "They turn green", "They remain undercooked", "They become more flavorful"],
+    "correct": 1,
+    "explanation": "The manual cautions that eggs are sensitive to heat and will turn green if overheated or reheated."
+  },
+  {
+    "id": 13,
+    "text": "How should a cabin crew member check if a meal is hot enough after the heating cycle?",
+    "options": ["By touching the casserole from the top", "By checking the oven's display timer", "By opening one or two casseroles from the bottom of the oven", "By asking a fellow crew member"],
+    "correct": 2,
+    "explanation": "The procedure is to check the meal by opening one or two casseroles from the bottom of the ovens to ensure they are hot enough."
+  },
+  {
+    "id": 14,
+    "text": "What is a key safety precaution when handling dry ice?",
+    "options": ["It can be eaten safely", "It must be handled with bare hands for better grip", "Ensure the area is well-ventilated", "It is safe to store in an unventilated area"],
+    "correct": 2,
+    "explanation": "A critical safety concern with dry ice is ventilation; the area must be well-ventilated to prevent the buildup of carbon dioxide."
+  },
+  {
+    "id": 15,
+    "text": "What is the purpose of using a yellow seal?",
+    "options": ["To identify meals with allergens", "To identify clean equipment for future services", "To mark a trolley for disposal", "To designate a galley as out of service"],
+    "correct": 1,
+    "explanation": "The yellow seal is used by cabin crew to identify clean equipment and meal trolleys designated for the 2nd, 3rd service, or return flights."
+  },
+  {
+    "id": 16,
+    "text": "What is the definition of a 'Balanced Diet' according to the manual?",
+    "options": ["A meal with only proteins and vitamins", "A meal that contains all important nutrients", "A meal that is low in fat and sugar", "A meal that is high in carbohydrates"],
+    "correct": 1,
+    "explanation": "A balanced diet consists of all the important nutrients as indicated in the 'Food Classification' section."
+  },
+  {
+    "id": 17,
+    "text": "Which of these is NOT a type of meal service mentioned for onboard flights?",
+    "options": ["Full Breakfast (FBF)", "Afternoon Tea (AFT)", "Hot Light Meal (HLM)", "Dinner (DNR)"],
+    "correct": 1,
+    "explanation": "The manual lists Full Breakfast (FBF), Hot Light Meal (HLM), and Dinner (DNR), but not 'Afternoon Tea (AFT)'."
+  },
+  {
+    "id": 18,
+    "text": "What is the service time window for a Full Breakfast (FBF)?",
+    "options": ["03:00 - 09:30", "09:30 - 14:00", "14:00 - 18:00", "18:00 - 23:30"],
+    "correct": 0,
+    "explanation": "Full Breakfast (FBF) is served when the departure time is between 03:00 and 09:30."
+  },
+  {
+    "id": 19,
+    "text": "What is a 'Canape'?",
+    "options": ["A large main course", "A small, decorative finger food", "A type of bread roll", "A hot soup"],
+    "correct": 1,
+    "explanation": "A Canape is described as a small, prepared, and usually decorative food, held in the fingers and often eaten in one bite."
+  },
+  {
+    "id": 20,
+    "text": "What service is designed to give passengers a 'quick service' on night flights?",
+    "options": ["Snack Box", "Quick Meal (QM)", "Refreshment", "Three Course Meal (TCM)"],
+    "correct": 1,
+    "explanation": "The Quick Meal (QM) is a service designed to give passengers a quick service whereby they can have all their meal at once."
+  },
+  {
+    "id": 21,
+    "text": "Which of the following is an Ethiopian traditional snack served with drinks in C-9?",
+    "options": ["Cocktail Biscuit", "Kolo", "Sandwich", "Muffin"],
+    "correct": 1,
+    "explanation": "'Kolo' is specified as a traditional snack served with drinks in C-9 only."
+  },
+  {
+    "id": 22,
+    "text": "What are the three general classes of alcoholic beverages?",
+    "options": ["Wines, Spirits, and Beers", "Vodka, Whiskey, and Rum", "Ales, Lagers, and Stouts", "Champagne, Port, and Sherry"],
+    "correct": 0,
+    "explanation": "Alcoholic beverages are divided into three general classes: beers, wines, and spirits."
+  },
+  {
+    "id": 23,
+    "text": "What gives red wine its color?",
+    "options": ["The juice of the grape", "The skin of the grape", "The aging process in oak barrels", "The addition of food coloring"],
+    "correct": 1,
+    "explanation": "Red wines are made from grapes fermented with the skin included, and it is the skin that imparts the red color."
+  },
+  {
+    "id": 24,
+    "text": "At what temperature is white wine best served?",
+    "options": ["Warm", "Chilled", "Room temperature", "Hot"],
+    "correct": 1,
+    "explanation": "White wines are usually drunk cold."
+  },
+  {
+    "id": 25,
+    "text": "What is a 'fortified wine'?",
+    "options": ["A wine with added sugar", "A wine with brandy or other spirits added", "A wine with natural carbonation", "A wine that is made from a single grape variety"],
+    "correct": 1,
+    "explanation": "Fortified wines are types of wine with brandy or other spirits added during fermentation."
+  },
+  {
+    "id": 26,
+    "text": "What is the primary base ingredient for beer?",
+    "options": ["Grapes", "Honey", "Malted barley or other grains", "Apples"],
+    "correct": 2,
+    "explanation": "Beer is produced by the brewing and fermentation of starches which are mainly derived from cereal grains, most commonly malted barley."
+  },
+  {
+    "id": 27,
+    "text": "Which of the following is classified as a 'Mix' among non-alcoholic beverages?",
+    "options": ["Orange juice", "Milk", "Tonic", "Coffee"],
+    "correct": 2,
+    "explanation": "Tonic, along with Ginger Ale and Ambo mineral water, are listed as mixes."
+  },
+  {
+    "id": 28,
+    "text": "What is a key hygiene rule for cabin crew when handling drink service?",
+    "options": ["Wash hands only after service", "Touch glassware by the rim", "Ensure glassware is clean and free from chips", "Leave half-open drinks on the trolley"],
+    "correct": 2,
+    "explanation": "It is important for cabin crew to ensure the cleanliness of glassware before serving. Chipped or cracked glassware is a hygiene risk."
+  },
+  {
+    "id": 29,
+    "text": "What is the correct way to hold a glass when serving?",
+    "options": ["By the rim", "By the body", "By the base or stem", "By the top edge"],
+    "correct": 2,
+    "explanation": "Glassware should be handled from the base or stem of the glass, never by the rim, as this is unhygienic."
+  },
+  {
+    "id": 30,
+    "text": "What is the correct greeting etiquette for Ethiopian Airlines cabin crew?",
+    "options": ["A firm handshake", "A casual nod", "A bow bending at the waist", "A wave"],
+    "correct": 2,
+    "explanation": "As an Ethiopian custom, it is customary to greet passengers with a bow, bending at the waist, at the first interaction and farewell."
+  },
+  {
+    "id": 31,
+    "text": "How often should cabin crew do a walk-through the cabin with a drink offering on medium and long-haul flights?",
+    "options": ["Every 10 minutes", "Every 15 minutes", "Every 20 minutes", "Every 30 minutes"],
+    "correct": 2,
+    "explanation": "After service is completed on medium and long-haul flights, cabin crew is obliged to go around the cabin every 20 minutes with assorted drinks."
+  },
+  {
+    "id": 32,
+    "text": "In what direction should the service flow in Economy class?",
+    "options": ["From AFT to FWD", "From FWD to AFT", "From the middle outwards", "From window to aisle"],
+    "correct": 1,
+    "explanation": "The service flow direction in economy class must start from the Forward (FWD) to the AFT (rear) throughout the cabin."
+  },
+  {
+    "id": 33,
+    "text": "What is a 'VIP passenger' defined as in the context of in-flight service?",
+    "options": ["Any passenger in a window seat", "A passenger who is a frequent flyer", "A passenger who must be given priority during meal choice and addressed by title and name", "A passenger who orders a special meal"],
+    "correct": 2,
+    "explanation": "VIP passengers must be given priority during meal choice and always addressed by title and name."
+  },
+  {
+    "id": 34,
+    "text": "When should a child's give-away kit be given to a passenger?",
+    "options": ["After the meal service", "Before landing", "As soon as possible after boarding", "Upon request"],
+    "correct": 2,
+    "explanation": "The procedure states to give children's give-away kits as soon as possible."
+  },
+  {
+    "id": 35,
+    "text": "What is a primary precaution when handling hot meals?",
+    "options": ["Serve them immediately from the oven", "Ensure they are heated to the correct temperature and served hot", "Allow them to cool to room temperature before serving", "Only serve them if they are burnt"],
+    "correct": 1,
+    "explanation": "Cabin crew must ensure hot meals are heated as per the content and oven type and should be served to passengers while hot."
+  },
+  {
+    "id": 36,
+    "text": "Why should you never reuse a meal that has already been reheated?",
+    "options": ["It will look unappealing", "It will lose its flavor", "It increases the risk of food poisoning", "It is against airline policy"],
+    "correct": 2,
+    "explanation": "The manual states that a meal can be reheated once, and must not reheat food more than once, to minimize the risk of any food poisoning."
+  },
+  {
+    "id": 37,
+    "text": "What is the correct first step when a passenger reports a food safety complaint, such as physical contamination?",
+    "options": ["Ignore the complaint", "Argue with the passenger", "Apologize and replace the meal", "Take a picture but do nothing else"],
+    "correct": 2,
+    "explanation": "If a passenger attracts the crew's attention regarding a safety issue, the crew needs to apologize and replace the meal with another one."
+  },
+  {
+    "id": 38,
+    "text": "What should a cabin crew member do if a special meal requested by a passenger is not loaded?",
+    "options": ["Tell the passenger they must have forgotten to order it", "Ignore the issue and serve them a standard meal", "Apologize and offer them something else from the available selection", "Ask them to wait until the next flight"],
+    "correct": 2,
+    "explanation": "If a passenger's SPML request is not loaded, the crew should apologize, inform them politely, and offer them something else."
+  },
+  {
+    "id": 39,
+    "text": "How should a baby bottle be cooled for a passenger?",
+    "options": ["Place it in the refrigerator", "Place it in an airsickness bag with hot water", "Place it in an airsickness bag with ice", "Place it under cold running water in the lavatory"],
+    "correct": 2,
+    "explanation": "To cool a baby bottle, place it in an airsickness bag with some pieces of ice."
+  },
+  {
+    "id": 40,
+    "text": "What is the correct way to heat baby food?",
+    "options": ["In the oven in its glass jar", "In a microwave", "In an airsickness bag with hot water", "By placing it under the hot water tap"],
+    "correct": 2,
+    "explanation": "To heat baby food, place an opened jar in an airsickness bag with hot water for approximately five minutes."
+  },
+  {
+    "id": 41,
+    "text": "What is the significance of checking the expiry date on a baby food jar?",
+    "options": ["It is not necessary", "It ensures the food is age-appropriate and safe", "It is only for inventory purposes", "It indicates the serving temperature"],
+    "correct": 1,
+    "explanation": "The manual instructs to always check expiry dates and age appropriateness before offering canned baby foods."
+  },
+  {
+    "id": 42,
+    "text": "What is the primary purpose of meal plating?",
+    "options": ["To ensure each passenger gets the same amount", "To make the food look attractive and standardize presentation", "To keep the food warm", "To hide any imperfections in the food"],
+    "correct": 1,
+    "explanation": "Plating is defined as the arrangement and overall styling of food upon bringing it to the plate."
+  },
+  {
+    "id": 43,
+    "text": "What tool is recommended for plating delicate foods like vegetables?",
+    "options": ["Tongs", "A fork", "A spoon", "A knife"],
+    "correct": 2,
+    "explanation": "A spoon is to be used when plating delicate foods, including vegetables."
+  },
+  {
+    "id": 44,
+    "text": "What is the 'B' cabin crew member's primary responsibility during meal service?",
+    "options": ["Serving drinks from the trolley", "Welcoming passengers", "Heating and portioning the meals", "Collecting used trays"],
+    "correct": 2,
+    "explanation": "It is the responsibility of B cabin crew to ensure meals are warmed per the correct temperature and portioned on pre-heated plates."
+  },
+  {
+    "id": 45,
+    "text": "Where should the main ingredient be placed on the plate?",
+    "options": ["On the edge of the plate", "In the center, a bit closer to the rim facing the crew", "On the upper left side", "On the upper right side"],
+    "correct": 1,
+    "explanation": "The main ingredient should be placed on the center of the plate, a bit closer to the rim facing the cabin crew member."
+  },
+  {
+    "id": 46,
+    "text": "What is the recommended heating time for a fish meal in a convection oven?",
+    "options": ["15 minutes", "16 minutes", "18 minutes", "20 minutes"],
+    "correct": 0,
+    "explanation": "The heating guidelines specify that a fish meal should be heated in a convection oven for 15 minutes."
+  },
+  {
+    "id": 47,
+    "text": "What is the abbreviation for a 'Hindu Meal'?",
+    "options": ["HNML", "VGML", "MOML", "BBML"],
+    "correct": 0,
+    "explanation": "HNML is the abbreviation for a Hindu meal, which consists of vegetables, fruits, nuts, and milk products but no eggs or fish."
+  },
+  {
+    "id": 48,
+    "text": "What is the difference between a 'Vegetarian Meal' (VGML) and a 'Vegan Meal' (VEML)?",
+    "options": ["VGML contains fish, VEML does not", "VGML can contain milk products and eggs, VEML cannot", "VGML is spicy, VEML is not", "VGML is cold, VEML is hot"],
+    "correct": 1,
+    "explanation": "A vegetarian meal (VGML) can contain milk products and eggs, whereas a vegan meal (VEML) contains no animal products, dairy, or eggs."
+  },
+  {
+    "id": 49,
+    "text": "Which of the following is a type of dessert served in Ethiopian Airlines?",
+    "options": ["Chocolate Fudge Cake", "Beef Stroganoff", "Garlic Bread", "Minestrone Soup"],
+    "correct": 0,
+    "explanation": "Chocolate Fudge Cake is listed as a dessert served in Ethiopian Airlines."
+  },
+  {
+    "id": 50,
+    "text": "What is the 'Eye Opener' service?",
+    "options": ["A service for VIP passengers only", "A drink and cake/muffin service before landing", "A full breakfast service", "A hot light meal served on long flights"],
+    "correct": 1,
+    "explanation": "The Eye Opener service includes serving a drink and a bulk fruit cake or muffin."
+  },
+  {
+    "id": 51,
+    "text": "What is a Cocktail Biscuit?",
+    "options": ["A type of alcoholic drink", "A snack served with drinks in both C-9 and E/Y", "A meal served only in business class", "A type of soft drink"],
+    "correct": 1,
+    "explanation": "Cocktail Biscuit is a snack served with drinks at both C-9 and E/Y."
+  },
+  {
+    "id": 52,
+    "text": "What is a 'Gluten Free Meal' (GFML) free from?",
+    "options": ["Sugar", "Dairy", "Flour, corn, and grains", "Salt"],
+    "correct": 2,
+    "explanation": "A Gluten Free Meal (GFML) contains no flour, corn, grains, or manufactured food like pasta and pastries."
+  },
+  {
+    "id": 53,
+    "text": "What is the correct procedure for handling a passenger who has ordered a 'Diabetic Meal' (DBML)?",
+    "options": ["Serve it with a regular dessert", "Ask the passenger when they would like to have their meal and serve it on time", "Replace it with a standard meal", "Do not serve it as it is a special request"],
+    "correct": 1,
+    "explanation": "When a passenger has ordered a DBML, the crew should ask when she/he would like to have their meal and serve it on time."
+  },
+  {
+    "id": 54,
+    "text": "What is the primary difference between C-9 and Economy class meal service for a 'Vegetarian Meal'?",
+    "options": ["The C-9 meal is larger", "The Economy class meal is served on a tray", "The special meal type is the same, but the service presentation differs", "Vegetarian meals are not served in Economy class"],
+    "correct": 2,
+    "explanation": "While the code for a special meal like 'Vegetarian Meal' remains the same, the service presentation, such as plating on chinaware in C-9 vs. a tray in Economy, differs."
+  },
+  {
+    "id": 55,
+    "text": "What is the manual's recommendation for serving drinks to passengers with infants or children?",
+    "options": ["Serve them last", "They are served at their seats", "They must get their drinks from the galley counter", "They are not served drinks"],
+    "correct": 1,
+    "explanation": "Cabin crew must ensure that passengers with infants/children are served drinks at their seats."
+  },
+  {
+    "id": 56,
+    "text": "What is the correct action if a meal service item like cutlery falls on the floor?",
+    "options": ["Pick it up and place it back on the tray", "Ignore it", "Pick it up using a paper napkin and replace it with a clean one", "Ask the passenger to pick it up"],
+    "correct": 2,
+    "explanation": "If a meal service item falls on the floor, the crew must pick it up using a paper napkin and change it with a clean one."
+  },
+  {
+    "id": 57,
+    "text": "Why is it important to plan and coordinate service delivery fairly and equally?",
+    "options": ["To complete the service in a short time", "To save food", "To ensure all galley equipment is used", "To allow more time for breaks"],
+    "correct": 0,
+    "explanation": "Meal trolleys must be loaded evenly by all galleys to complete service fairly and equally in a short time."
+  },
+  {
+    "id": 58,
+    "text": "What is the role of the Team Leader (TL) in relation to meal portioning?",
+    "options": ["To personally plate all the meals", "To clean the galley", "To facilitate service delivery and ensure requested meals are reflected on the form", "To serve the special meals"],
+    "correct": 2,
+    "explanation": "The TL/C1/C3 shall ensure the requested meals are reflected on the Meal & Drink Request Form for B cabin crew to plan portioning accordingly."
+  },
+  {
+    "id": 59,
+    "text": "In the context of service, what does 'HLM' stand for?",
+    "options": ["Hot Light Meal", "Healthy Lunch Menu", "High-Lift Meal", "Heavy Load Meal"],
+    "correct": 0,
+    "explanation": "HLM is the abbreviation for Hot Light Meal, which is a type of meal service onboard."
+  },
+  {
+    "id": 60,
+    "text": "How should a cabin crew member handle a passenger's request for a drink after the main meal service is finished?",
+    "options": ["Tell them the bar is closed", "Ask them to wait until the next service", "Ask how they want the drink, prepare it in the galley, and serve it on a snack tray", "Direct them to the galley to get it themselves"],
+    "correct": 2,
+    "explanation": "For individual drink requests made after the cabin service is finished, ask how the passenger wants the drink, prepare it in the galley, and serve using a snack tray."
+  },
+  {
+    "id": 61,
+    "text": "What is a key characteristic of a 'Soup' service?",
+    "options": ["It is always served cold", "It is a liquid food and usually served hot as a starter", "It is only available on domestic flights", "It is served as a main course"],
+    "correct": 1,
+    "explanation": "Soup is a liquid food, usually served hot as a starter choice, and shall have at least two choices."
+  },
+  {
+    "id": 62,
+    "text": "What is a key difference in the 'Dinner' (DNR) service for flights departing before and after 21:00?",
+    "options": ["The meal content differs", "Drinks are served with the meal on later flights rather than as a separate pre-meal service", "The after 21:00 service does not include dessert", "The before 21:00 service is a full meal, the after 21:00 is a light meal"],
+    "correct": 1,
+    "explanation": "For DNR flights departing after 21:00, the drink service is combined with the meal service, whereas for flights before 21:00, drinks are served with cocktail biscuits first."
+  },
+  {
+    "id": 63,
+    "text": "What does the abbreviation 'EY' stand for in the context of the service manual?",
+    "options": ["Executive Youth", "Economy Class", "Extra Yummy", "Elite Year"],
+    "correct": 1,
+    "explanation": "EY is the standard abbreviation used for Economy Class throughout the manual."
+  },
+  {
+    "id": 64,
+    "text": "What is the purpose of a 'Refreshment Counter' on Far East flights?",
+    "options": ["To replace the main meal service", "To sell duty-free items", "To allow passengers to get their own non-alcoholic drinks at their convenience", "To serve only hot beverages"],
+    "correct": 2,
+    "explanation": "The drink counter is set up to allow passengers to get their own non-alcoholic drinks at their own convenience, encouraging movement during long hours."
+  },
+  {
+    "id": 65,
+    "text": "What is a 'Q400' in the context of the manual?",
+    "options": ["A type of engine", "A type of aircraft", "A meal code", "A beverage brand"],
+    "correct": 1,
+    "explanation": "The Q400 is mentioned as an aircraft type for regional flights where the Express Sandwich (EXP. SDW) can be served."
+  },
+  {
+    "id": 66,
+    "text": "Which of these is a correct example of a 'Non-Alcoholic' drink mix?",
+    "options": ["Chivas Regal", "Prosecco", "Ginger Ale", "Port"],
+    "correct": 2,
+    "explanation": "Ginger Ale is classified as a 'Mix' under non-alcoholic beverages."
+  },
+  {
+    "id": 67,
+    "text": "What is the proper way to serve a canned drink?",
+    "options": ["Serve it directly in the can", "Pour it into a tumbler unless the passenger insists otherwise", "Serve it with a straw only", "Never open it in front of the passenger"],
+    "correct": 1,
+    "explanation": "Canned drinks shall be poured into a tumbler unless the passenger insists not to."
+  },
+  {
+    "id": 68,
+    "text": "What is the base ingredient for 'Brioche'?",
+    "options": ["It is made in the same basic way as bread but has extra eggs and butter", "It is a type of puff pastry", "It is made from rice flour", "It is a type of cake"],
+    "correct": 0,
+    "explanation": "Brioche is considered a Viennoiserie, made in the same basic way as bread, but with the richer aspect of a pastry due to extra eggs, butter, and liquid."
+  },
+  {
+    "id": 69,
+    "text": "What is the primary source of protein for a 'Lactose-free' meal?",
+    "options": ["It contains no dairy products", "It is high in dairy", "It only contains fish", "It is a high-carbohydrate meal"],
+    "correct": 0,
+    "explanation": "A Lactose-free (NLML) meal contains no dairy products, so protein must come from other sources."
+  },
+  {
+    "id": 70,
+    "text": "What is the correct procedure for a cabin crew member to gain access to the C-9 cabin from Economy class?",
+    "options": ["Push through the galley quickly", "Check that the aisle is free from cart/trolley service before entering", "Wait for a formal announcement", "Use the crew rest area"],
+    "correct": 1,
+    "explanation": "CC must check whether the aisle is free from cart/trolley service before entering the C-9 cabin from the EY class."
+  },
+  {
+    "id": 71,
+    "text": "What is the key characteristic of a 'Dessert Wine'?",
+    "options": ["It is always red", "It is very sweet and intended to be drunk with or as a dessert course", "It is a type of sparkling wine", "It has high tannin content"],
+    "correct": 1,
+    "explanation": "Dessert wines are very sweet and intended to be drunk with or as a dessert course."
+  },
+  {
+    "id": 72,
+    "text": "Which special meal is described as a meal with no spice, for a European palate?",
+    "options": ["EVML", "AVML", "VGML", "VLML"],
+    "correct": 0,
+    "explanation": "European Vegetarian (EVML) is described as vegetables with no spice, and can include dairy products."
+  },
+  {
+    "id": 73,
+    "text": "What is the proper attire for a cabin crew member when plating food?",
+    "options": ["No special attire is needed", "Must wear an apron", "Must wash hands and wear white gloves", "Must wear a hairnet"],
+    "correct": 2,
+    "explanation": "The procedure for plating requires the crew to wash hands and wear white gloves."
+  },
+  {
+    "id": 74,
+    "text": "What is the correct way to remove excess liquid from a casserole before plating?",
+    "options": ["Mix it into the sauce", "Pour it off the food", "Use it for a soup", "Spoon it onto the side of the plate"],
+    "correct": 1,
+    "explanation": "The procedure is to unwrap covers and pour off the excess liquid or fat from the food before setting up the plate."
+  },
+  {
+    "id": 75,
+    "text": "What is the best practice for maintaining hygiene during drink service?",
+    "options": ["Use a gloved hand to pick up any dropped items", "Always use an ice tong to pick ice", "Hold the glass by the rim for a steady pour", "Pre-pour all drinks to save time"],
+    "correct": 1,
+    "explanation": "The manual specifies to always use ice tongs to pick ice to maintain hygiene."
+  },
+  {
+    "id": 76,
+    "text": "What is the main ingredient of 'Focaccia'?",
+    "options": ["It is a flat oven-baked Italian bread similar to pizza dough", "It is a layered sweet pastry", "It is a type of hard cheese", "It is a loaf made with whole grain flour"],
+    "correct": 0,
+    "explanation": "Focaccia is a flat oven-baked Italian bread product similar in style and texture to pizza dough."
+  },
+  {
+    "id": 77,
+    "text": "What is the primary method of cooking 'Artichoke' for serving?",
+    "options": ["Raw", "Cooked", "Pickled", "Sautéed"],
+    "correct": 1,
+    "explanation": "The manual lists Artichoke as being served cooked."
+  },
+  {
+    "id": 78,
+    "text": "What is the key attribute of a 'Cabernet Sauvignon' wine?",
+    "options": ["It is a light-bodied wine", "It is a robust, big red wine with a strong character and tannins", "It is a sweet dessert wine", "It is a type of white wine"],
+    "correct": 1,
+    "explanation": "Cabernet Sauvignon is described as a robust, big red wine with a strong character and tannins."
+  },
+  {
+    "id": 79,
+    "text": "What is the correct procedure for a 'Lactose-free' meal order?",
+    "options": ["Serve with a side of cheese", "Ensure no dairy products are used in the meal", "Replace the meal with a standard one", "Add extra butter to compensate"],
+    "correct": 1,
+    "explanation": "A Lactose-free (NLML) meal must contain no dairy products."
+  },
+  {
+    "id": 80,
+    "text": "Why is it important to keep all work areas clean and sanitized regularly?",
+    "options": ["To maintain the appearance of the galley", "To avoid food poisoning and contamination", "To save time", "Because the passengers might see it"],
+    "correct": 1,
+    "explanation": "Adhering to hygiene protocols helps to avoid food poisoning caused by bacteria and microorganisms like Salmonella, Listeria, and E. coli."
+  }
+
+]
+    // 3. Short notes – HTML string (can contain any formatting)
+const SHORT_NOTES_HTML = `
+    <style>
+        .notes-content {
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.5;
+            color: #e2e8f0;
+            background: rgba(12, 18, 34, 0.75);
+            backdrop-filter: blur(4px);
+            padding: 0;
+            border: none;
+            box-shadow: none;
+            margin: 0;
+        }
+        .notes-content h3 {
+            font-size: 1.8rem;
+            border-left: 6px solid #c084fc;
+            padding-left: 1rem;
+            margin-top: 0;
+            margin-bottom: 1rem;
+            color: #f1f5f9;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff, #c084fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .notes-content h4 {
+            font-size: 1.3rem;
+            margin: 1.2rem 0 0.5rem 0;
+            color: #a78bfa;
+            display: inline-block;
+            border-bottom: 2px solid rgba(139, 92, 246, 0.5);
+            padding-bottom: 0.2rem;
+        }
+        .notes-content p {
+            margin: 0.8rem 0;
+            color: #cbd5e6;
+        }
+        .notes-content ul, .notes-content ol {
+            padding-left: 1.5rem;
+            margin: 0.8rem 0;
+        }
+        .notes-content li {
+            margin: 0.4rem 0;
+            color: #cbd5e6;
+        }
+        .notes-content strong {
+            color: #facc15;
+            font-weight: 600;
+        }
+        .highlight {
+            background: rgba(59, 130, 246, 0.2);
+            backdrop-filter: blur(4px);
+            padding: 0.8rem 1rem;
+            border-radius: 1rem;
+            margin: 1rem 0;
+            border-left: 4px solid #3b82f6;
+        }
+        .tip {
+            background: rgba(245, 158, 11, 0.15);
+            backdrop-filter: blur(4px);
+            padding: 0.8rem 1rem;
+            border-radius: 1rem;
+            margin: 1rem 0;
+            border-left: 4px solid #f59e0b;
+        }
+        hr {
+            margin: 1.2rem 0;
+            border: 0;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(255,255,255,0.1), transparent);
+        }
+    </style>
+
+    <div class="notes-content">
+        <h3>📚 Ethiopian Product Knowledge<br><span style="font-size: 0.9rem; font-weight: normal;">Cabin Crew Basic Service Training Manual | Sections 5.1 – 5.7</span></h3>
+
+        <p>This guide provides cabin crew with essential knowledge about food and beverage products served onboard Ethiopian Airlines flights. Understanding these products—from classification and menu planning to handling procedures—ensures professional, safe, and consistent service delivery.</p>
+
+        <hr>
+
+        <h4>🧑‍🍳 5.1 Food Classification</h4>
+        <p>Meals are classified into three main categories. A balanced diet consists of small amounts of each component from all three categories.</p>
+
+        <ul>
+            <li><strong>Body Building Foods (Proteins):</strong> Meats, fish, and milk products. Main meals include meats (beef, veal, lamb, poultry) or seafood (finfish like salmon/tuna; shellfish like crab/lobster) accompanied by vegetables, rice, or pasta. <strong>Note:</strong> Pork is never served on Ethiopian Airlines flights.</li>
+            <li><strong>Protective Foods (Vitamins & Minerals):</strong> Fruits and vegetables. Served fresh, in salads, cooked, steamed, boiled, or pickled. Vegetables like carrots, celery, cucumber, and mushrooms can be eaten raw or cooked.</li>
+            <li><strong>Energy/Heat Giving Foods (Carbohydrates, Fats, Water):</strong> Bread and cereals, sweets, fats. Includes bread varieties (brown, garlic, toast, breadsticks, focaccia, brioche, croissant), cereals (wheat, oat, corn, rice), desserts (chocolate fudge cake, pineapple tart, various mousse cakes), and fats like butter, oil, and margarine.</li>
+        </ul>
+
+        <div class="highlight">
+            <strong>💡 Key Concept:</strong> A balanced diet incorporates <strong>Proteins (Body Building)</strong>, <strong>Vitamins/Minerals (Protective)</strong>, and <strong>Carbohydrates/Fats (Energy)</strong> to nourish the body effectively.
+        </div>
+
+        <h4>🍽️ 5.2 Menu Planning</h4>
+        <p>Menus are designed based on several key criteria:</p>
+        <ul>
+            <li><strong>Balanced Diet:</strong> Meals must include nutrients from all three food groups (Protein, Protective, Energy).</li>
+            <li><strong>Color Combination:</strong> Visually appealing meals enhance the dining experience (e.g., brown steak with green peas and orange carrots).</li>
+            <li><strong>Influence of Quality:</strong> Wholesomeness/cleanliness and appearance, color, flavor, aroma, and freshness are paramount.</li>
+            <li><strong>Specialty and Availability:</strong> Menus reflect regional specialties (e.g., French wine and cheese) and seasonal availability to minimize costs.</li>
+            <li><strong>Sequence of Service:</strong> Meal service timing and coordination depend on flight duration, passenger load, and needs.</li>
+        </ul>
+
+        <h4>📋 5.2.6 Types of Meals Onboard</h4>
+        <p><strong>Full Breakfast (FBF):</strong> Served 03:00–09:30. Includes fruit salad, yogurt, cereal, choice of two hot main meals, bakery selection, and hot beverages.</p>
+        <p><strong>Lunch/Dinner (LCH/DNR):</strong> Served 09:30–14:00 (Lunch) and 18:00–23:30 (Dinner). Includes starters, salad, choice of three/four hot main meals (including pasta), bread, dessert, cheese, fruit, tea, coffee.</p>
+        <p><strong>Hot Light Meal (HLM):</strong> Served 14:01–18:00 or 22:31–02:59. Includes salad, starter, three main courses, bread, dessert, pre-cut cheese, fruit.</p>
+        <p><strong>Three Course Meal (TCM):</strong> Hot light meal for short-haul flights; includes starter, salad, dessert served on a meal tray.</p>
+        <p><strong>Ethiopian National Meal:</strong> Availed in foil on flights >4 hours (outbound). Includes injera, served once on long-haul flights with multiple services.</p>
+        <p><strong>Soup:</strong> Liquid food (meat, fish, chicken, or vegetables), served hot as starter; at least two choices in thermos for DNR first service.</p>
+        <p><strong>Noodles:</strong> Instant noodle cups for Far East flights as an extra meal between two hot meals.</p>
+        <p><strong>Canape:</strong> Small, decorative finger food, hot or cold, eaten in one bite.</p>
+        <p><strong>Sandwich (SDW) / Express Sandwich (EXP.SDW):</strong> Served as snacks in Economy Class on short-haul regional flights.</p>
+        <p><strong>Quick Meal (QM):</strong> Designed for C-9 night flights so passengers can have all meal components at once.</p>
+        <p><strong>Snack / Snack Box:</strong> Light bites or boxed snacks with drinks.</p>
+        <p><strong>Refreshment:</strong> Drinks with "KOLO" (C-9 only) or cocktail biscuit, served on flights <50 minutes or >5 hours before landing (except breakfast/HCP).</p>
+        <p><strong>Crew Meal:</strong> Served to cabin and cockpit crew. Pilot-in-command's meal differs from other crew for safety. Hot meal ratio same as C-9; bread loaded 100%.</p>
+
+        <div class="tip">
+            <strong>⏱️ Tip:</strong> Flight timing determines meal type. For short sectors, meals may be heated on-ground. For longer flights, a leisurely service is possible.
+        </div>
+
+        <hr>
+
+        <h4>🔥 5.3 Basic Guidelines for Meal Serving and Precautions</h4>
+        <p><strong>5.3.1 Hygiene:</strong> Personal and hand hygiene is crucial. Wash hands with soap and water before service, after handling waste, and after cleaning. Use sanitizers as a supplement, not a replacement. Keep nails short and work areas sanitized to avoid food poisoning (Salmonella, Listeria, E. coli).</p>
+        <p><strong>5.3.2 Temperature Control:</strong> Hot meals must be well-cooked and kept at proper temperature until service. Chillers keep meals cold and fresh. Meals can be reheated <strong>only once</strong> with proper temperature guidelines.</p>
+        <p><strong>5.3.3 Meal Heating Guidelines:</strong> Identify meal type and set correct oven temperature. National dish & bread use minimum temperature. Frozen meals must be defrosted earlier. For steam ovens (all meal types), use medium steam for 15–18 minutes.</p>
+        
+        <p><strong>Oven Temperature & Time Guidelines:</strong></p>
+        <ul>
+            <li><strong>Fish:</strong> Dry Oven 150°C / 15 min; Steam Oven 110°C / 18 min; Convection 150°C / 15 min</li>
+            <li><strong>Beef:</strong> Dry Oven 160°C / 15 min; Steam Oven 130°C / 20 min; Convection 150°C / 18 min</li>
+            <li><strong>Chicken:</strong> Dry Oven 160°C / 15 min; Steam Oven 130°C / 22 min; Convection 160°C / 22 min</li>
+            <li><strong>Bread Rolls:</strong> Dry Oven 160°C / 6 min; Steam Oven 130°C / 6 min; Convection 170°C / 6 min</li>
+            <li><strong>Egg Dishes:</strong> Dry Oven 150°C / 7 min; Steam Oven 110°C / 17 min; Convection 150°C / 10 min</li>
+            <li><strong>Pasta:</strong> Dry Oven 150°C / 7 min; Steam Oven 130°C / 20 min; Convection 160°C / 25 min</li>
+            <li><strong>Rice/Noodles:</strong> Dry Oven N/A; Steam Oven 130°C / 20 min; Convection 160°C / 25 min</li>
+            <li><strong>Vegetarian:</strong> Dry Oven N/A; Steam Oven 110°C / 15 min; Convection 150°C / 19 min</li>
+        </ul>
+
+        <p><strong>5.3.4 Oven and Meal:</strong> Check oven operation and temperature distribution. Check meals are hot enough (open 1–2 casseroles from bottom).</p>
+        <ul>
+            <li><strong>Kosher meals:</strong> Frozen, require additional heating; keep in oven-proof aluminum cover and bag.</li>
+            <li><strong>Eggs:</strong> Sensitive to heat—overheating turns them green; underheating makes them watery.</li>
+        </ul>
+
+        <p><strong>5.3.5 Cross Contamination:</strong> Keep used and unused service items separate. Never mix used and unused trays/utensils in same trolley. Use yellow seals to identify clean equipment for subsequent services.</p>
+        <p><strong>5.3.6 Reporting Technical & Maintenance:</strong> Report chiller temperature fluctuations to Team Leader immediately to avoid serving unsafe food.</p>
+        <p><strong>5.3.7 Handling Food Safety Complaints:</strong> Apologize, replace meal, take photos of spoiled food, return meal to catering for investigation. Report with flight report.</p>
+
+        <h4>🍽️ 5.4 Basic Meal Plating (Portioning) Procedure</h4>
+        <p><strong>Plating Fundamentals:</strong> Serve hot food on pre-heated plates. Use galley extensions/trolley tops as work areas. B cabin crew organizes plating tools; TL/C1/C3 coordinates service and meal requests.</p>
+        
+        <p><strong>Plating Sequence:</strong></p>
+        <ol>
+            <li>Clean galley counter and prepare plating tools.</li>
+            <li>Remove hot casseroles from oven (main protein, starch, vegetables, sauce).</li>
+            <li>Wash hands, wear white gloves.</li>
+            <li>Unwrap covers, pour off excess liquid/fat.</li>
+            <li>Place main ingredient slightly off-center, closer to rim facing you.</li>
+            <li>Place starch/carbohydrate upper left of main ingredient.</li>
+            <li>Place vegetable upper right of main ingredient.</li>
+            <li>Add height to layout; lightly pour sauce on top.</li>
+        </ol>
+        <p><strong>Plating Tools:</strong> Plating Guide, Dining Chinaware, White Gloves, Spoon (delicate foods), Tong (sturdy items), Paper Napkin (wipe dribbles).</p>
+
+        <hr>
+
+        <h4>👶 5.5 Baby Food Handling Procedure</h4>
+        <p><strong>To Cool Baby Bottle:</strong> Place bottle in an airsickness bag with ice; test temperature by sprinkling drops on the back of your hand.</p>
+        <p><strong>To Warm Baby Bottle:</strong> Place bottle in airsickness bag with hot water; test temperature as above.</p>
+        <p><strong>To Heat Baby Food:</strong> Place opened jar in airsickness bag with hot water for ~5 minutes; remove, wipe, place on snack tray with napkins and spoon; give to parent.</p>
+        <div class="tip"><strong>⚠️ Important:</strong> Always check expiry dates and ensure age-appropriateness before serving canned baby foods.</div>
+
+        <h4>🛎️ 5.6 Special Meal (SPML) Handling Procedure</h4>
+        <p>Special meals are prepared upon passenger request. Three copies of the Special Meal Order List ("MS" list) are given to Team Leader by station/catering agent. Check loaded SPML against list. <strong>Never</strong> remove cellophane casserole cover for Kosher meals—it is oven-proof. For unloaded requests, apologize and offer alternative promptly.</p>
+
+        <p><strong>SPML Categories and Abbreviations:</strong></p>
+        <ul>
+            <li><strong>Fasting Ethiopian Orthodox:</strong> Vegetables, no milk/meat/egg products, with or without fish. (Fasting VEG/Fish)</li>
+            <li><strong>Muslim/Mohammedan:</strong> Vegetable only. (MOML)</li>
+            <li><strong>Kosher:</strong> Requested by Jewish passengers; frozen, pre-packed. (KSML) – <strong>Note:</strong> Present sealed tray to passenger before heating; <em>do not remove heat-proof cellophane cover</em> when heating or serving.</li>
+            <li><strong>Hindu:</strong> Vegetables, fruits, nuts (raw/cooked) with vegetable oil only; milk products, no egg/no fish. (HNML)</li>
+            <li><strong>Vegetarian:</strong> Vegetables, fruits, milk products, eggs. (VGML)</li>
+            <li><strong>Vegan/Pure Vegetarian:</strong> No animal products, dairy, or eggs. (VEML)</li>
+            <li><strong>Asiatic/Indian Vegetarian:</strong> No animal products, fish, or eggs. (AVML)</li>
+            <li><strong>European Vegetarian:</strong> Vegetables with no spice; can eat dairy products. (EVML)</li>
+            <li><strong>Western Vegetarian Ovo-Lacto:</strong> Dairy products and eggs. (VLML)</li>
+            <li><strong>Baby Meal:</strong> Commercially prepared, strained food. (BBML)</li>
+            <li><strong>Child Meal:</strong> Food cut into small pieces, soft, not spicy (e.g., mini sandwiches, chicken nuggets). (CHML)</li>
+            <li><strong>Seafood:</strong> Fish only, no meat, eggs, cheese. (SFML)</li>
+            <li><strong>Diabetic:</strong> Sugar-free and carbohydrate-free. (DBML)</li>
+            <li><strong>Gluten Free:</strong> No flour, corn, grains, manufactured food (e.g., pasta, pastries, mayonnaise). (GFML)</li>
+            <li><strong>Salt Free:</strong> No salt. (None)</li>
+            <li><strong>Fat Free/Low Fat:</strong> No oil, butter, eggs, dairy products, alcohol. (LFML)</li>
+            <li><strong>Lactose Free:</strong> No dairy products. (NLML)</li>
+        </ul>
+
+        <div class="highlight">
+            <strong>⚠️ Food Allergy Considerations:</strong> Giving the wrong meal to a passenger with allergies can be disastrous. Always confirm SPML requests, check meal lists, and deliver promptly. Check expiry dates before serving (especially BBML, VLML).
+        </div>
+
+        <hr>
+
+        <h4>🥤 5.7 Drink Classification</h4>
+
+        <h5>🍷 5.7.1 Alcoholic Beverages</h5>
+        <p><strong>Wines:</strong> Divided into red, white, rosé, sparkling, and dessert/fortified wines.</p>
+        <ul>
+            <li><strong>Red Wine:</strong> Fermented with skin (color and tannins). Served at room temperature (approx. 17°C) with red meats, hearty pasta. Varieties: Beaujolais, Bordeaux, Burgundy, Cabernet Sauvignon, Merlot, Pinot Noir, etc.</li>
+            <li><strong>White Wine:</strong> Fermented without skin. Served chilled (7-10°C) with poultry, fish, lighter dishes. Varieties: Chardonnay, Muscadet, Riesling, Sauvignon Blanc, Semillon, etc.</li>
+            <li><strong>Rosé Wines:</strong> Pink/blush color from brief skin contact or blending red/white. Serve chilled (approx. 7-10°C).</li>
+            <li><strong>Sparkling Wine:</strong> Bubbles from carbon dioxide. Example: Prosecco (Italy, 11% ABV), Lallier Champagne (France, 12.5% ABV). Serve chilled (7°C).</li>
+            <li><strong>Dessert & Fortified Wines:</strong> Very sweet; served with dessert course. Example: Sande Man Port Wine (Portugal, 20% ABV).</li>
+        </ul>
+
+        <p><strong>Ethiopian Airlines Wine Selection (Examples):</strong></p>
+        <ul>
+            <li><strong>Red:</strong> Beau – Rivage – Bordeaux Superieur (France, 12.5%), Boshandel Merlot (South Africa, 14%), Chappelle De La Trinite-Merlot (France, 13.5%), Chateau- Lalande Villeneuve Medoc (France, 13%).</li>
+            <li><strong>White:</strong> Chatu Fondarazac – Entre-Deux-Mers (France, 12.5%), Beau -Rivage Entre-Deux-Mers (France, 12%), Flagstone Poetry Chardonnay (France, 13.5%), Brampton Chardonnay (South Africa, 14%).</li>
+        </ul>
+
+        <p><strong>Liquor (Spirits):</strong> Unsweetened, distilled beverages with ≥30% ABV. Examples: Chivas Regal (500ml), Johnnie Walker Black Label (500ml), Stolichnaya Vodka (1L), Bombay Gin (500ml).</p>
+        <p><strong>Liqueur:</strong> Sweet alcoholic beverages flavored with fruits, herbs, spices, etc. Examples: Cointreau (500ml), Tia Maria (1L), Bailey's (500ml), Benedictine (1L), Remy Martin (500ml), Espresso Bottega (500ml).</p>
+        <p><strong>Beer:</strong> Brewed and fermented from starches (malted barley, rice). Served chilled. Examples: Habesha, Bavaria 5%, Bavaria 0% (all 330ml).</p>
+
+        <h5>🧃 5.7.2 Non-Alcoholic Beverages</h5>
+        <p><strong>Juices:</strong> Orange, Pineapple, Apple, Passion Fruit, Tomato. (200ml servings; brands: Ceres, Lagon)</p>
+        <p><strong>Soft Drinks:</strong> Coca-Cola, Sprite, Fanta Ananas, Fanta Orange, Ambo Mineral (sparkling water), Tonic Water, Ginger Ale. (Various sizes: 200ml, 500ml, 1.5L)</p>
+
+        <h5>☕ 5.7.3 Hot Beverages</h5>
+        <p><strong>Coffee:</strong> Second most-traded commodity. Main growing regions: Central America/Caribbean, South America, Africa, Australia/Asia.</p>
+        <ul>
+            <li><strong>Brewed Ethiopian Coffee (Jet coffee):</strong> Rectangular coffee pod for aircraft machines.</li>
+            <li><strong>Instant Coffee (Nescafé):</strong> Caffeinated (50g) and Decaffeinated (50mg).</li>
+            <li><strong>Espresso:</strong> Caffeinated (Emilio Caffe) and Decaffeinated (Buscaglione) pods.</li>
+            <li><strong>Cappuccino:</strong> Powdered instant cappuccino in individual packets.</li>
+        </ul>
+        <p><strong>Tea:</strong> Varieties include Black Tea, Chamomile Flowers Herb Tea, Cinnamon Tea, Ginger Tea, Green Tea. All have specific color and flavor characteristics.</p>
+
+        <h4>🧼 5.7.4 Basic Guidelines for Drink Serving and Precautions</h4>
+        <p><strong>Hygiene:</strong> Wash hands with soap and water. Never touch glass rims; handle from base or stem. Never serve chipped/cracked glassware (hygiene and safety risk). Replace soggy linens/napkins immediately. Clean and sanitize tables.</p>
+        <p><strong>Temperature Control:</strong> Serve cold drinks cold and hot drinks hot. Red wine at room temperature with red meat/cheese; white wine chilled with white meat; Champagne chilled with any food, especially cake and cheese.</p>
+
+        <hr>
+
+        <div class="tip">
+            <strong>✈️ Final Word for Crew:</strong> Mastery of product knowledge—from food classification and menu types to handling special meals and beverages—ensures safe, efficient, and delightful service. Always prioritize hygiene, temperature control, and passenger satisfaction.
+        </div>
+
+    </div>
+`;
+    // ===================== END CONFIGURATION =====================
+
+    // Helper
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    // ---------- QUIZ ENGINE (works with any QUESTIONS_DATA) ----------
+    let questions = [];
+    let currentIndex = 0;
+    let userAnswers = [];
+    let answerLocked = false;
+    let autoTimer = null;
+    let quizInitialized = false;
+    let quizDynamicDiv = null; // will hold the #quizContent element
+
+    const STORAGE_KEY = "custom_quiz_progress";
+    const CORRECT_SEQ_KEY = "custom_quiz_correct_seq";
+
+    // Generate balanced random sequence (equal distribution of 0-3, no consecutive repeats)
+    function generateBalancedRandomSequence(total) {
+        const perOption = Math.floor(total / 4);
+        let remainder = total % 4;
+        let counts = [perOption, perOption, perOption, perOption];
+        for (let i = 0; i < remainder; i++) counts[i]++;
+        let seq = [];
+        let prev = -1;
+        for (let i = 0; i < total; i++) {
+            let available = [];
+            for (let c = 0; c < 4; c++) {
+                if (counts[c] > 0 && c !== prev) available.push(c);
+            }
+            if (available.length === 0) {
+                for (let c = 0; c < 4; c++) {
+                    if (counts[c] > 0) available.push(c);
+                }
+            }
+            let randomIndex = Math.floor(Math.random() * available.length);
+            let chosen = available[randomIndex];
+            seq.push(chosen);
+            counts[chosen]--;
+            prev = chosen;
+        }
+        return seq;
+    }
+
+    // Reorder options so correct answer appears at sequence position
+    function reorderQuestionsWithBalancedRandom(questionsArray) {
+        const total = questionsArray.length;
+        const storedSeq = localStorage.getItem(CORRECT_SEQ_KEY);
+        let finalSeq;
+        if (storedSeq) {
+            finalSeq = JSON.parse(storedSeq);
+        } else {
+            finalSeq = generateBalancedRandomSequence(total);
+            localStorage.setItem(CORRECT_SEQ_KEY, JSON.stringify(finalSeq));
+        }
+        for (let i = 0; i < questionsArray.length; i++) {
+            const q = questionsArray[i];
+            const originalCorrectIdx = q.correct;
+            const correctText = q.options[originalCorrectIdx];
+            const targetPos = finalSeq[i];
+            const otherOptions = q.options.filter((_, idx) => idx !== originalCorrectIdx);
+            const newOptions = new Array(4);
+            newOptions[targetPos] = correctText;
+            let otherIdx = 0;
+            for (let j = 0; j < 4; j++) {
+                if (j === targetPos) continue;
+                newOptions[j] = otherOptions[otherIdx++];
+            }
+            q.options = newOptions;
+            q.correct = targetPos;
+        }
+        return questionsArray;
+    }
+
+    function saveProgress() {
+        const state = { currentIndex, userAnswers };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function loadProgress() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (!saved) return false;
+        try {
+            const state = JSON.parse(saved);
+            if (state.userAnswers && state.userAnswers.length === questions.length) {
+                currentIndex = state.currentIndex;
+                userAnswers = state.userAnswers;
+                return true;
+            }
+        } catch(e) {}
+        return false;
+    }
+
+    function hasProgress() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (!saved) return false;
+        try {
+            const state = JSON.parse(saved);
+            return state.userAnswers && state.userAnswers.some(a => a !== null);
+        } catch(e) { return false; }
+    }
+
+    function resetQuiz() {
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(CORRECT_SEQ_KEY);
+        // Reinitialize with fresh balanced sequence
+        const rawCopy = JSON.parse(JSON.stringify(QUESTIONS_DATA));
+        questions = reorderQuestionsWithBalancedRandom(rawCopy);
+        userAnswers = new Array(questions.length).fill(null);
+        currentIndex = 0;
+        answerLocked = false;
+        saveProgress();
+    }
+
+    // ---------- RENDERING FUNCTIONS ----------
+    function renderLanding() {
+        document.getElementById("appRoot").innerHTML = `
+            <div class="quiz-header">
+                <div class="badge-row">
+                    <div class="title">${escapeHtml(SUBJECT_NAME)} </div>
+                </div>
+            </div>
+            <div class="landing">
+                <h2>📖 Welcome</h2>
+                <p>Test your knowledge or read the short notes</p>
+                <div class="button-group">
+                    <div class="big-btn" id="takeQuizBtn">📝 Take Quiz</div>
+                    <div class="big-btn" id="readNotesBtn">📘 Read Short Notes</div>
+                </div>
+            </div>
+            <footer>📚 Based on course material</footer>
+        `;
+        document.getElementById("takeQuizBtn").onclick = () => startQuiz();
+        document.getElementById("readNotesBtn").onclick = () => showNotes('landing');
+    }
+
+    function renderResume() {
+        document.getElementById("appRoot").innerHTML = `
+            <div class="quiz-header">
+                <div class="badge-row">
+                    <div class="title">${escapeHtml(SUBJECT_NAME)} </div>
+                </div>
+            </div>
+            <div class="resume-screen">
+                <h2>🔄 Resume Quiz</h2>
+                <p>You have an unfinished quiz. Continue where you left off or start over.</p>
+                <div class="button-group">
+                    <div class="big-btn" id="restartQuizBtn">🔄 Restart Quiz</div>
+                    <div class="big-btn" id="continueQuizBtn">▶ Continue Quiz</div>
+                    <div class="big-btn" id="resumeNotesBtn">📘 Read Short Notes</div>
+                </div>
+            </div>
+            <footer>📚 Based on course material</footer>
+        `;
+        document.getElementById("restartQuizBtn").onclick = () => { resetQuiz(); startQuiz(); };
+        document.getElementById("continueQuizBtn").onclick = () => startQuiz(true);
+        document.getElementById("resumeNotesBtn").onclick = () => showNotes('resume');
+    }
+
+    function startQuiz(keepProgress = false) {
+        if (!quizInitialized) {
+            const rawCopy = JSON.parse(JSON.stringify(QUESTIONS_DATA));
+            questions = reorderQuestionsWithBalancedRandom(rawCopy);
+            userAnswers = new Array(questions.length).fill(null);
+            currentIndex = 0;
+            quizInitialized = true;
+        }
+        if (keepProgress) {
+            loadProgress();
+        } else {
+            userAnswers.fill(null);
+            currentIndex = 0;
+            saveProgress();
+        }
+        renderQuiz();
+    }
+
+    function renderQuiz() {
+        const appRoot = document.getElementById("appRoot");
+        appRoot.innerHTML = `
+            <div class="quiz-header">
+                <div class="badge-row">
+                    <div class="title" id="dynamicTitle">Question ${currentIndex+1}</div>
+                    <div class="stats-panel">
+                        <span class="question-counter" id="counterLabel">${userAnswers.filter(a=>a!==null).length} / ${questions.length}</span>
+                    </div>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="progressFill" style="width: ${(userAnswers.filter(a=>a!==null).length/questions.length)*100}%"></div>
+                </div>
+            </div>
+            <div id="quizContent"></div>
+            <div class="notes-button-wrapper">
+                <div class="notes-button" id="notesFromQuizBtn">📘 Read Short Notes</div>
+            </div>
+            <footer>📚 Based on course material</footer>
+        `;
+        // Get reference to quiz content container
+        quizDynamicDiv = document.getElementById("quizContent");
+        renderCurrentQuestion();
+        // Attach notes button event
+        document.getElementById("notesFromQuizBtn").onclick = () => showNotes('quiz');
+    }
+
+    function updateStats() {
+  const correctCount = userAnswers.reduce((count, ans, idx) => count + (ans !== null && ans === questions[idx].correct ? 1 : 0), 0);
+  const percent = (correctCount / questions.length) * 100;
+  const fill = document.getElementById("progressFill");
+  const counter = document.getElementById("counterLabel");
+  if (fill) fill.style.width = `${percent}%`;
+  if (counter) counter.innerText = `${correctCount} / ${questions.length}`;
+  const titleDiv = document.getElementById("dynamicTitle");
+  if (titleDiv) titleDiv.textContent = `Question ${currentIndex+1}`;
+}
+
+    function clearTimer() { if (autoTimer) { clearTimeout(autoTimer); autoTimer = null; } }
+
+    function selectAnswer(selectedIdx) {
+        if (answerLocked) return;
+        const q = questions[currentIndex];
+        const isCorrect = (selectedIdx === q.correct);
+        userAnswers[currentIndex] = selectedIdx;
+        updateStats();
+        answerLocked = true;
+        saveProgress();
+        renderFeedback(selectedIdx, isCorrect);
+        if (isCorrect) {
+            autoTimer = setTimeout(() => {
+                if (currentIndex < questions.length - 1) {
+                    currentIndex++;
+                    answerLocked = false;
+                    clearTimer();
+                    renderCurrentQuestion();
+                    saveProgress();
+                } else {
+                    if (userAnswers.every(a => a !== null)) renderResults();
+                    else renderCurrentQuestion();
+                    saveProgress();
+                }
+            }, 1100);
+        }
+    }
+
+    function renderFeedback(selectedIdx, isCorrect) {
+        const q = questions[currentIndex];
+        const letters = ["A","B","C","D"];
+        let optionsHtml = "";
+        q.options.forEach((opt, idx) => {
+            let extraClass = "";
+            if (idx === q.correct) extraClass = "correct-highlight";
+            else if (idx === selectedIdx && !isCorrect) extraClass = "wrong-highlight";
+            optionsHtml += `
+                <div class="option disabled-opt ${extraClass}">
+                    <div class="option-prefix">${letters[idx]}</div>
+                    <div class="option-text">${escapeHtml(opt)}</div>
+                </div>
+            `;
+        });
+        const correctLetter = letters[q.correct];
+        const feedbackHtml = isCorrect ?
+            `<div class="feedback-panel feedback-correct"><div class="feedback-title correct-title">✓ CORRECT</div><div class="feedback-text">${escapeHtml(q.explanation)}</div></div>` :
+            `<div class="feedback-panel feedback-wrong"><div class="feedback-title wrong-title">✗ INCORRECT</div><div class="feedback-text"><strong>Correct answer: ${correctLetter}. ${escapeHtml(q.options[q.correct])}</strong><br>${escapeHtml(q.explanation)}</div></div>`;
+        const navHtml = `
+            <div class="nav-buttons">
+                <div class="btn btn-outline" id="navPrev">◀ Previous</div>
+                <div class="btn btn-primary" id="navNext">${currentIndex === questions.length-1 ? "Finish" : "Next ▶"}</div>
+            </div>
+        `;
+        quizDynamicDiv.innerHTML = `<div class="quiz-card"><div class="question-text">${escapeHtml(q.text)}</div><div class="options-grid">${optionsHtml}</div>${feedbackHtml}${navHtml}</div>`;
+        document.getElementById("navPrev")?.addEventListener("click", () => {
+            if (currentIndex > 0) {
+                clearTimer(); currentIndex--; answerLocked = false; renderCurrentQuestion(); saveProgress();
+            }
+        });
+        const nextBtn = document.getElementById("navNext");
+        if (nextBtn) {
+            nextBtn.addEventListener("click", () => {
+                if (currentIndex < questions.length-1) {
+                    clearTimer(); currentIndex++; answerLocked = false; renderCurrentQuestion(); saveProgress();
+                } else {
+                    renderResults();
+                }
+            });
+        }
+        updateStats();
+    }
+
+    function renderCurrentQuestion() {
+        clearTimer();
+        if (userAnswers[currentIndex] !== null) {
+            const saved = userAnswers[currentIndex];
+            const isCor = (saved === questions[currentIndex].correct);
+            renderFeedback(saved, isCor);
+            return;
+        }
+        answerLocked = false;
+        const q = questions[currentIndex];
+        const letters = ["A","B","C","D"];
+        let optsHtml = "";
+        q.options.forEach((opt, idx) => {
+            optsHtml += `<div class="option" data-opt="${idx}"><div class="option-prefix">${letters[idx]}</div><div class="option-text">${escapeHtml(opt)}</div></div>`;
+        });
+        const navHtml = `<div class="nav-buttons"><div class="btn btn-outline" id="prevClean">◀ Previous</div><div class="btn btn-primary" id="nextClean">${currentIndex === questions.length-1 ? "Finish" : "Next ▶"}</div></div>`;
+        quizDynamicDiv.innerHTML = `<div class="quiz-card"><div class="question-text">${escapeHtml(q.text)}</div><div class="options-grid" id="optGrid">${optsHtml}</div>${navHtml}</div>`;
+        document.querySelectorAll(".option").forEach(opt => {
+            opt.addEventListener("click", (e) => {
+                const idx = parseInt(opt.dataset.opt);
+                selectAnswer(idx);
+            });
+        });
+        document.getElementById("prevClean")?.addEventListener("click", () => {
+            if (currentIndex > 0) { currentIndex--; renderCurrentQuestion(); saveProgress(); }
+        });
+        document.getElementById("nextClean")?.addEventListener("click", () => {
+            if (currentIndex < questions.length-1) { currentIndex++; renderCurrentQuestion(); saveProgress(); }
+            else if (userAnswers[currentIndex] !== null && currentIndex === questions.length-1) renderResults();
+        });
+        updateStats();
+    }
+
+    function renderResults() {
+        let score = 0;
+        for (let i=0; i<questions.length; i++) if (userAnswers[i] === questions[i].correct) score++;
+        const percent = Math.round((score/questions.length)*100);
+        let verdict = percent>=85 ? `🏆 ${SUBJECT_NAME} Master` : percent>=70 ? `🖨️ Advanced ${SUBJECT_NAME} Practitioner` : percent>=55 ? `📘 Emerging ${SUBJECT_NAME} Learner` : `🌱 ${SUBJECT_NAME} Explorer`;
+        quizDynamicDiv.innerHTML = `<div class="quiz-card result-container"><div class="score-circle"><div class="score-number">${score}</div><div style="color:#94a3b8;">/ ${questions.length}</div></div><div class="verdict">${verdict}</div><p style="color:#cbd5e6; margin:12px 0;">Accuracy: ${percent}% • Mastery Level</p><div class="btn restart-btn" id="restartBtn">⟳ Restart Exam</div></div>`;
+        document.getElementById("restartBtn")?.addEventListener("click", () => {
+            resetQuiz();
+            startQuiz();
+        });
+        const titleDiv = document.getElementById("dynamicTitle");
+        if (titleDiv) titleDiv.textContent = "Quiz Completed";
+    }
+
+    function showNotes(returnView) {
+        const appRoot = document.getElementById("appRoot");
+        appRoot.innerHTML = `
+            <div class="quiz-header">
+                <div class="badge-row">
+                    <div class="title">📘 Short Notes</div>
+                </div>
+            </div>
+            <div class="notes-page">
+                ${SHORT_NOTES_HTML}
+                <button class="back-btn" id="backFromNotes">← Back</button>
+            </div>
+            <footer>📚 Based on course material</footer>
+        `;
+        document.getElementById("backFromNotes").onclick = () => {
+            if (returnView === 'landing') renderLanding();
+            else if (returnView === 'resume') renderResume();
+            else if (returnView === 'quiz') startQuiz(true);
+            else renderLanding();
+        };
+    }
+
+    // ---------- INITIAL RENDERING ----------
+    function initApp() {
+        if (hasProgress()) {
+            renderResume();
+        } else {
+            renderLanding();
+        }
+    }
+    initApp();
+</script>
+</body>
+</html>
