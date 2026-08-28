@@ -1111,6 +1111,33 @@ const SHORT_NOTES_HTML = `
             height: 1px;
             background: linear-gradient(90deg, rgba(255,255,255,0.1), transparent);
         }
+        .notes-content .cheese-grid, .notes-content .bread-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem 1.5rem;
+            margin: 0.5rem 0 1rem 0;
+        }
+        .notes-content .cheese-item, .notes-content .bread-item {
+            background: rgba(255,255,255,0.04);
+            border-radius: 0.5rem;
+            padding: 0.4rem 0.8rem;
+            border-left: 2px solid #c084fc;
+        }
+        .notes-content .cheese-item strong, .notes-content .bread-item strong {
+            color: #facc15;
+            display: block;
+            font-size: 0.95rem;
+        }
+        .notes-content .cheese-item span, .notes-content .bread-item span {
+            font-size: 0.9rem;
+            color: #cbd5e6;
+            line-height: 1.4;
+        }
+        @media (max-width: 600px) {
+            .notes-content .cheese-grid, .notes-content .bread-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 
     <div class="notes-content">
@@ -1126,17 +1153,110 @@ const SHORT_NOTES_HTML = `
         <ul>
             <li><strong>Body Building Foods (Proteins):</strong> Meats, fish, and milk products. Main meals include meats (beef, veal, lamb, poultry) or seafood (finfish like salmon/tuna; shellfish like crab/lobster) accompanied by vegetables, rice, or pasta. <strong>Note:</strong> Pork is never served on Ethiopian Airlines flights.</li>
             <li><strong>Protective Foods (Vitamins & Minerals):</strong> Fruits and vegetables. Served fresh, in salads, cooked, steamed, boiled, or pickled. Vegetables like carrots, celery, cucumber, and mushrooms can be eaten raw or cooked.</li>
-            <li><strong>Energy/Heat Giving Foods (Carbohydrates, Fats, Water):</strong> Bread and cereals, sweets, fats. Includes bread varieties (brown, garlic, toast, breadsticks, focaccia, brioche, croissant), cereals (wheat, oat, corn, rice), desserts (chocolate fudge cake, pineapple tart, various mousse cakes), and fats like butter, oil, and margarine.</li>
+            <li><strong>Energy/Heat Giving Foods (Carbohydrates, Fats, Water):</strong> Bread and cereals, sweets, fats. Includes bread varieties, cereals (wheat, oat, corn, rice), desserts, and fats like butter, oil, and margarine.</li>
         </ul>
 
         <div class="highlight">
             <strong>💡 Key Concept:</strong> A balanced diet incorporates <strong>Proteins (Body Building)</strong>, <strong>Vitamins/Minerals (Protective)</strong>, and <strong>Carbohydrates/Fats (Energy)</strong> to nourish the body effectively.
         </div>
 
-        <h4>🍽️ 5.2 Menu Planning</h4>
-        <p>Menus are designed based on several key criteria:</p>
+        <h5>🥩 5.1.1 Body Building Food – Meats & Seafood</h5>
+        <p><strong>Beef:</strong> Cattle meat – roast, steak, grill, kebab cubes, or ground.<br>
+        <strong>Veal:</strong> Calf meat – roast chops, cutlets, kebab cubes.<br>
+        <strong>Lamb:</strong> Young sheep meat – roast, chops, or cutlets.<br>
+        <strong>Poultry:</strong> Chicken/turkey/duck – roasted, breaded, fried, stuffed, or boiled.</p>
+        <p><strong>Seafood:</strong> <em>Finfish</em> (bony skeletons) – salmon, tuna, Nile perch, tilapia; <em>Shellfish</em> (hard shell) – crab, lobster, shrimp.</p>
+        <p><strong>Milk Products – Cheese:</strong> Made from cream, milk, skimmed milk of cow or goat. Used in cooking or served as dessert. Cheeses are named after place of origin; expensive cheeses valued for flavor and curing time. In-flight, cheese is served with side fruits after the main meal, in small portions or sandwiches.</p>
+
+        <div class="cheese-grid">
+            <div class="cheese-item"><strong>Gouda</strong><span>Mild, yellow cow's milk cheese from the Netherlands. One of the most popular worldwide.</span></div>
+            <div class="cheese-item"><strong>Edam</strong><span>Semi-hard cow's milk cheese, traditionally sold in round cylinders with a red paraffin wax rind.</span></div>
+            <div class="cheese-item"><strong>Smoked Cheese</strong><span>Any cheese specially treated by smoke‑curing; has a yellowish‑brown outer pellicle.</span></div>
+            <div class="cheese-item"><strong>Emmental</strong><span>Yellow, medium‑hard Swiss cheese with a mild, savory taste.</span></div>
+            <div class="cheese-item"><strong>Camembert</strong><span>Soft, creamy, surface‑ripened cow's milk cheese.</span></div>
+            <div class="cheese-item"><strong>Cheddar</strong><span>Relatively hard, off‑white or orange, sometimes sharp‑tasting natural cheese.</span></div>
+            <div class="cheese-item"><strong>Danish (Blue)</strong><span>Strong, blue‑veined cheese; semi‑soft, typically drum‑ or block‑shaped.</span></div>
+            <div class="cheese-item"><strong>Goat Cheese</strong><span>Made by allowing raw milk to naturally curdle, then draining and pressing the curds.</span></div>
+            <div class="cheese-item"><strong>Cottage</strong><span>Fresh cheese curd product with mild flavor; not aged; curds kept loose.</span></div>
+            <div class="cheese-item"><strong>Blue Cheese</strong><span>Sharp and salty flavor due to mold and bacteria; distinct smell.</span></div>
+            <div class="cheese-item"><strong>Provolone</strong><span>Italian, aged pasta filata (stretched‑curd) cheese; semi‑hard.</span></div>
+            <div class="cheese-item"><strong>Brie</strong><span>Pale color with a slight grayish tinge under a rind of white mold; rind is typically eaten.</span></div>
+            <div class="cheese-item"><strong>Gruyère</strong><span>Hard yellow Swiss cheese; sweet but slightly salty; creamy and nutty when young, more assertive with age.</span></div>
+            <div class="cheese-item"><strong>Bel Paese</strong><span>Mild, soft, creamy cow's milk cheese with a hard rind; requires 9 months to ripen.</span></div>
+            <div class="cheese-item"><strong>Mozzarella</strong><span>White, semi‑soft, salt‑less cheese; served on pizzas or cold as an entrée with tomatoes.</span></div>
+            <div class="cheese-item"><strong>Feta</strong><span>White, semi‑soft, very salty goat's milk cheese; served mixed in salads.</span></div>
+            <div class="cheese-item"><strong>Roquefort</strong><span>Goat's milk, semi‑hard, sharp, with green mold; 3‑9 month curing time.</span></div>
+            <div class="cheese-item"><strong>Bianco</strong><span>Semi‑soft, pasteurized milk; requires 3 months to ripen.</span></div>
+            <div class="cheese-item"><strong>Cream Cheese</strong><span>Soft, uncured, smooth cheese packed in a container; popular brand on ET flights from ADD is "Philadelphia".</span></div>
+        </div>
+
+        <h5>🍎 5.1.2 Protective Foods – Fruits & Vegetables</h5>
+        <p><strong>Fruits:</strong> Fresh fruit basket (seasonal). Prepared as fruit salad, eaten cooked or dried. Examples: Apple, Cantaloupe (sweet melon), Grapefruit, Apricot, Cherry, Peach, Banana.</p>
+        <p><strong>Vegetables:</strong> Served cooked, boiled/buttered, steamed, raw, pickled, or in salads. Common vegetables and preparation:</p>
         <ul>
-            <li><strong>Balanced Diet:</strong> Meals must include nutrients from all three food groups (Protein, Protective, Energy).</li>
+            <li>Artichoke – Cooked</li>
+            <li>Asparagus – Cooked/steamed</li>
+            <li>Beans – Boiled/buttered</li>
+            <li>Broccoli – Cooked/steamed</li>
+            <li>Brussels sprout – Cooked</li>
+            <li>Carrots – Raw/cooked/pickled</li>
+            <li>Cauliflower – Cooked/pickled</li>
+            <li>Celery – Raw/cooked/pickled</li>
+            <li>Cucumber – Raw/pickled</li>
+            <li>Leeks – Raw/cooked</li>
+            <li>Lettuce – Raw</li>
+            <li>Mushroom – Raw/cooked</li>
+            <li>Nuts (almond, pea) – Raw/roasted</li>
+            <li>Onion – Boiled/raw/fried/sautéed/pickled</li>
+            <li>Radish – Raw/pickled</li>
+            <li>Parsley – Raw or cooked</li>
+            <li>Peas – Boiled/buttered</li>
+            <li>Watercress – Raw (decoration)</li>
+            <li>Zucchini – Cooked, fried, sautéed</li>
+        </ul>
+
+        <h5>🍞 5.1.3 Energy or Heat Giving Foods – Bread & Cereals</h5>
+        <p><strong>Bread:</strong> Made from different flour mixtures (wheat, oat, corn, rice). Served as rolls, toast, slices, croissants, brioche, breadsticks, biscuits/cookies, cake. Below are common bread varieties served onboard:</p>
+        <div class="bread-grid">
+            <div class="bread-item"><strong>Brown Bread</strong><span>Made with significant amounts of whole grain flour, usually wheat.</span></div>
+            <div class="bread-item"><strong>Garlic Bread</strong><span>Typically French baguette or sourdough (like ciabatta), partially sliced, stuffed with oil and minced garlic (or garlic powder/butter), then baked.</span></div>
+            <div class="bread-item"><strong>Toast Bread</strong><span>Browned by radiant heat (Maillard reaction), firmer and easier to spread toppings.</span></div>
+            <div class="bread-item"><strong>Bread Stick</strong><span>Pencil‑sized, crisp, dry baked bread; originated in Italy (grissini).</span></div>
+            <div class="bread-item"><strong>Focaccia</strong><span>Flat oven‑baked Italian bread, similar to pizza dough; served as side, sandwich bread, appetizer, or snack.</span></div>
+            <div class="bread-item"><strong>Brioche</strong><span>Rich Viennoiserie pastry with extra eggs, butter, milk/cream, and sometimes sugar; lighter than bread but richer than pastry.</span></div>
+            <div class="bread-item"><strong>Croissant</strong><span>Buttery, flaky, crescent‑shaped laminated yeast‑leavened dough; layered with butter.</span></div>
+            <div class="bread-item"><strong>Pain au Chocolat</strong><span>Literally "chocolate bread"; cuboid‑shaped laminated dough with dark chocolate inside; similar to croissant.</span></div>
+            <div class="bread-item"><strong>Danish Pastry</strong><span>Multilayered, laminated sweet pastry in the Viennoiserie tradition; variant of puff pastry with yeast.</span></div>
+            <div class="bread-item"><strong>Pain au Raisin</strong><span>Variant of croissant or pain au chocolat, with raisins, shaped in a spiral with crème pâtissière filling.</span></div>
+            <div class="bread-item"><strong>Muffin</strong><span>Individual‑sized baked product; can be flatbread (unsweetened) or cupcake‑like quick bread (sweetened or savory with corn/cheese).</span></div>
+        </div>
+
+        <p><strong>Cereals:</strong> Wheat, oat, corn, rice – used for breakfast cereals and pasta products.</p>
+        <p><strong>Sweets (Desserts):</strong> Examples served onboard:</p>
+        <ul>
+            <li><strong>Chocolate Fudge Cake:</strong> Melted chocolate and cocoa, topped with ganache.</li>
+            <li><strong>Pineapple Tart:</strong> Crumbly pastry with pineapple jam filling.</li>
+            <li><strong>Caramel Cheesecake:</strong> Silky, creamy texture balanced with salted caramel.</li>
+            <li><strong>Apple Cinnamon Crumble:</strong> Loaded with warm cinnamon apples and extra crumb topping.</li>
+            <li><strong>Berry Mousse Cake:</strong> Layers of strawberry cake, raspberry purée, blueberry mousse, blackberry glaze.</li>
+            <li><strong>Berry Crumble Pie:</strong> Bright berry filling with crumble topping.</li>
+            <li><strong>Lemon Tart:</strong> Pastry case with baked lemon custard (eggs, sugar, lemon juice, cream).</li>
+            <li><strong>Orange Chiffon Cake:</strong> Light, fluffy, moist, and tender with orange flavor.</li>
+            <li><strong>Carrot Cake:</strong> Soft, moist cake with cream cheese frosting.</li>
+            <li><strong>Raspberry Mousse Cake:</strong> Light, elegant dessert with raspberry jelly topping.</li>
+        </ul>
+        <p><strong>Fats:</strong> Butter, oil, and margarine.</p>
+
+        <h5>🧂 5.1.4 Others – Salad Dressings & Condiments</h5>
+        <p><strong>Salad Dressings:</strong> Oil and vinegar (Italian), Thousand Island, French dressing, Coleslaw dressing, Roquefort dressing (blue cheese mixed with cream, mayonnaise, vinegar).</p>
+        <p><strong>Condiments:</strong> Mustard (hot spicy, with meats), Ketchup (tomato‑based), Hot sauce (red pepper), Tabasco (served with canapés).</p>
+
+        <hr>
+
+        <h4>📋 5.2 Menu</h4>
+        <p>Menus are prepared based on the following criteria and provided on all international flights from ADD:</p>
+        <ul>
+            <li><strong>Balanced Diet:</strong> Meals must include nutrients from all three food groups.</li>
             <li><strong>Color Combination:</strong> Visually appealing meals enhance the dining experience (e.g., brown steak with green peas and orange carrots).</li>
             <li><strong>Influence of Quality:</strong> Wholesomeness/cleanliness and appearance, color, flavor, aroma, and freshness are paramount.</li>
             <li><strong>Specialty and Availability:</strong> Menus reflect regional specialties (e.g., French wine and cheese) and seasonal availability to minimize costs.</li>
@@ -1145,28 +1265,33 @@ const SHORT_NOTES_HTML = `
 
         <h4>📋 5.2.6 Types of Meals Onboard</h4>
         <p><strong>Full Breakfast (FBF):</strong> Served 03:00–09:30. Includes fruit salad, yogurt, cereal, choice of two hot main meals, bakery selection, and hot beverages.</p>
-        <p><strong>Lunch/Dinner (LCH/DNR):</strong> Served 09:30–14:00 (Lunch) and 18:00–22:30 (Dinner). Includes starters, salad, choice of three/four hot main meals (including pasta), bread, dessert, cheese, fruit, tea, coffee.</p>
-        <p><strong>Hot Light Meal (HLM):</strong> Served 14:01–18:00 or 22:31–02:59. Includes salad, starter, three main courses, bread, dessert, pre-cut cheese, fruit.</p>
-        <p><strong>Three Course Meal (TCM):</strong> Hot light meal for short-haul flights; includes starter, salad, dessert served on a meal tray.</p>
-        <p><strong>Ethiopian National Meal:</strong> Availed in foil on flights >4 hours (outbound). Includes injera, served once on long-haul flights with multiple services.</p>
+        <p><strong>Lunch/Dinner (LCH/DNR):</strong> Served 09:30–14:00 (Lunch) and 18:00–23:30 (Dinner). Includes starters, salad, choice of three/four hot main meals (including pasta), bread, dessert, cheese, fruit, tea, coffee.</p>
+        <p><strong>Hot Light Meal (HLM):</strong> Served 14:01–18:00 or 22:31–02:59. Includes salad, starter, three main courses, bread, dessert, pre‑cut cheese, fruit.</p>
+        <p><strong>Three Course Meal (TCM):</strong> Hot light meal for short‑haul flights; includes starter, salad, dessert served on a meal tray.</p>
+        <p><strong>Ethiopian National Meal:</strong> Availed in foil on flights >4 hours (outbound). Includes injera, served once on long‑haul flights with multiple services.</p>
         <p><strong>Soup:</strong> Liquid food (meat, fish, chicken, or vegetables), served hot as starter; at least two choices in thermos for DNR first service.</p>
         <p><strong>Noodles:</strong> Instant noodle cups for Far East flights as an extra meal between two hot meals.</p>
         <p><strong>Canape:</strong> Small, decorative finger food, hot or cold, eaten in one bite.</p>
-        <p><strong>Sandwich (SDW) / Express Sandwich (EXP.SDW):</strong> Served as snacks in Economy Class on short-haul regional flights.</p>
-        <p><strong>Quick Meal (QM):</strong> Designed for C-9 night flights so passengers can have all meal components at once.</p>
+        <p><strong>Sandwich (SDW) / Express Sandwich (EXP.SDW):</strong> Served as snacks in Economy Class on short‑haul regional flights.</p>
+        <p><strong>Quick Meal (QM):</strong> Designed for C‑9 night flights so passengers can have all meal components at once.</p>
         <p><strong>Snack / Snack Box:</strong> Light bites or boxed snacks with drinks.</p>
-        <p><strong>Refreshment:</strong> Drinks with "KOLO" (C-9 only) or cocktail biscuit, served on flights <50 minutes or >5 hours before landing (except breakfast/HCP).</p>
-        <p><strong>Crew Meal:</strong> Served to cabin and cockpit crew. Pilot-in-command's meal differs from other crew for safety. Hot meal ratio same as C-9; bread loaded 100%.</p>
+        <p><strong>Refreshment:</strong> Drinks with "KOLO" (C‑9 only) or cocktail biscuit, served on flights <50 minutes or >5 hours before landing (except breakfast/HCP).</p>
+        <p><strong>Crew Meal:</strong> Served to cabin and cockpit crew. Pilot‑in‑command's meal differs from other crew for safety. Hot meal ratio same as C‑9; bread loaded 100%.</p>
+        <p><strong>Back Catering:</strong> Meal service loaded from Addis Ababa for incoming flights.</p>
+        <div class="tip"><strong>⏱️ Tip:</strong> Flight timing determines meal type. For short sectors, meals may be heated on‑ground. For longer flights, a leisurely service is possible.</div>
 
-        <div class="tip">
-            <strong>⏱️ Tip:</strong> Flight timing determines meal type. For short sectors, meals may be heated on-ground. For longer flights, a leisurely service is possible.
-        </div>
+        <h5>🔥 5.2.7 Back Catered Meal Heating Procedure</h5>
+        <ul>
+            <li>Casseroles loaded frozen with dry ice (in cabin or EPP box).</li>
+            <li>If well frozen, defrost for 20 min; if not, use up to 10 min defrost.</li>
+            <li>Before serving, warm for another 15‑20 min.</li>
+        </ul>
 
         <hr>
 
-        <h4>🔥 5.3 Basic Guidelines for Meal Serving and Precautions</h4>
+        <h4>🛡️ 5.3 Basic Guidelines for Meal Serving and Precautions</h4>
         <p><strong>5.3.1 Hygiene:</strong> Personal and hand hygiene is crucial. Wash hands with soap and water before service, after handling waste, and after cleaning. Use sanitizers as a supplement, not a replacement. Keep nails short and work areas sanitized to avoid food poisoning (Salmonella, Listeria, E. coli).</p>
-        <p><strong>5.3.2 Temperature Control:</strong> Hot meals must be well-cooked and kept at proper temperature until service. Chillers keep meals cold and fresh. Meals can be reheated <strong>only once</strong> with proper temperature guidelines.</p>
+        <p><strong>5.3.2 Temperature Control:</strong> Hot meals must be well‑cooked and kept at proper temperature until service. Chillers keep meals cold and fresh. Meals can be reheated <strong>only once</strong> with proper temperature guidelines.</p>
         <p><strong>5.3.3 Meal Heating Guidelines:</strong> Identify meal type and set correct oven temperature. National dish & bread use minimum temperature. Frozen meals must be defrosted earlier. For steam ovens (all meal types), use medium steam for 15–18 minutes.</p>
         
         <p><strong>Oven Temperature & Time Guidelines:</strong></p>
@@ -1183,7 +1308,7 @@ const SHORT_NOTES_HTML = `
 
         <p><strong>5.3.4 Oven and Meal:</strong> Check oven operation and temperature distribution. Check meals are hot enough (open 1–2 casseroles from bottom).</p>
         <ul>
-            <li><strong>Kosher meals:</strong> Frozen, require additional heating; keep in oven-proof aluminum cover and bag.</li>
+            <li><strong>Kosher meals:</strong> Frozen, require additional heating; keep in oven‑proof aluminum cover and bag.</li>
             <li><strong>Eggs:</strong> Sensitive to heat—overheating turns them green; underheating makes them watery.</li>
         </ul>
 
@@ -1191,8 +1316,10 @@ const SHORT_NOTES_HTML = `
         <p><strong>5.3.6 Reporting Technical & Maintenance:</strong> Report chiller temperature fluctuations to Team Leader immediately to avoid serving unsafe food.</p>
         <p><strong>5.3.7 Handling Food Safety Complaints:</strong> Apologize, replace meal, take photos of spoiled food, return meal to catering for investigation. Report with flight report.</p>
 
+        <hr>
+
         <h4>🍽️ 5.4 Basic Meal Plating (Portioning) Procedure</h4>
-        <p><strong>Plating Fundamentals:</strong> Serve hot food on pre-heated plates. Use galley extensions/trolley tops as work areas. B cabin crew organizes plating tools; TL/C1/C3 coordinates service and meal requests.</p>
+        <p><strong>Plating Fundamentals:</strong> Serve hot food on pre‑heated plates. Use galley extensions/trolley tops as work areas. B cabin crew organizes plating tools; TL/C1/C3 coordinates service and meal requests.</p>
         
         <p><strong>Plating Sequence:</strong></p>
         <ol>
@@ -1200,7 +1327,7 @@ const SHORT_NOTES_HTML = `
             <li>Remove hot casseroles from oven (main protein, starch, vegetables, sauce).</li>
             <li>Wash hands, wear white gloves.</li>
             <li>Unwrap covers, pour off excess liquid/fat.</li>
-            <li>Place main ingredient slightly off-center, closer to rim facing you.</li>
+            <li>Place main ingredient slightly off‑center, closer to rim facing you.</li>
             <li>Place starch/carbohydrate upper left of main ingredient.</li>
             <li>Place vegetable upper right of main ingredient.</li>
             <li>Add height to layout; lightly pour sauce on top.</li>
@@ -1213,32 +1340,33 @@ const SHORT_NOTES_HTML = `
         <p><strong>To Cool Baby Bottle:</strong> Place bottle in an airsickness bag with ice; test temperature by sprinkling drops on the back of your hand.</p>
         <p><strong>To Warm Baby Bottle:</strong> Place bottle in airsickness bag with hot water; test temperature as above.</p>
         <p><strong>To Heat Baby Food:</strong> Place opened jar in airsickness bag with hot water for ~5 minutes; remove, wipe, place on snack tray with napkins and spoon; give to parent.</p>
-        <div class="tip"><strong>⚠️ Important:</strong> Always check expiry dates and ensure age-appropriateness before serving canned baby foods.</div>
+        <div class="tip"><strong>⚠️ Important:</strong> Always check expiry dates and ensure age‑appropriateness before serving canned baby foods.</div>
+
+        <hr>
 
         <h4>🛎️ 5.6 Special Meal (SPML) Handling Procedure</h4>
-        <p>Special meals are prepared upon passenger request. Three copies of the Special Meal Order List ("MS" list) are given to Team Leader by station/catering agent. Check loaded SPML against list. <strong>Never</strong> remove cellophane casserole cover for Kosher meals—it is oven-proof. For unloaded requests, apologize and offer alternative promptly.</p>
+        <p>Special meals are prepared upon passenger request. Three copies of the Special Meal Order List ("MS" list) are given to Team Leader by station/catering agent. Check loaded SPML against list. <strong>Never</strong> remove cellophane casserole cover for Kosher meals—it is oven‑proof. For unloaded requests, apologise and offer alternative promptly.</p>
 
         <p><strong>SPML Categories and Abbreviations:</strong></p>
         <ul>
             <li><strong>Fasting Ethiopian Orthodox:</strong> Vegetables, no milk/meat/egg products, with or without fish. (Fasting VEG/Fish)</li>
             <li><strong>Muslim/Mohammedan:</strong> Vegetable only. (MOML)</li>
-            <li><strong>Kosher:</strong> Requested by Jewish passengers; frozen, pre-packed. (KSML) – <strong>Note:</strong> Present sealed tray to passenger before heating; <em>do not remove heat-proof cellophane cover</em> when heating or serving.</li>
+            <li><strong>Kosher:</strong> Requested by Jewish passengers; frozen, pre‑packed. (KSML) – <strong>Note:</strong> Present sealed tray to passenger before heating; <em>do not remove heat‑proof cellophane cover</em> when heating or serving.</li>
             <li><strong>Hindu:</strong> Vegetables, fruits, nuts (raw/cooked) with vegetable oil only; milk products, no egg/no fish. (HNML)</li>
             <li><strong>Vegetarian:</strong> Vegetables, fruits, milk products, eggs. (VGML)</li>
             <li><strong>Vegan/Pure Vegetarian:</strong> No animal products, dairy, or eggs. (VEML)</li>
             <li><strong>Asiatic/Indian Vegetarian:</strong> No animal products, fish, or eggs. (AVML)</li>
             <li><strong>European Vegetarian:</strong> Vegetables with no spice; can eat dairy products. (EVML)</li>
-            <li><strong>Western Vegetarian Ovo-Lacto:</strong> Dairy products and eggs. (VLML)</li>
+            <li><strong>Western Vegetarian Ovo‑Lacto:</strong> Dairy products and eggs. (VLML)</li>
             <li><strong>Baby Meal:</strong> Commercially prepared, strained food. (BBML)</li>
             <li><strong>Child Meal:</strong> Food cut into small pieces, soft, not spicy (e.g., mini sandwiches, chicken nuggets). (CHML)</li>
             <li><strong>Seafood:</strong> Fish only, no meat, eggs, cheese. (SFML)</li>
-            <li><strong>Diabetic:</strong> Sugar-free and carbohydrate-free. (DBML)</li>
+            <li><strong>Diabetic:</strong> Sugar‑free and carbohydrate‑free. (DBML)</li>
             <li><strong>Gluten Free:</strong> No flour, corn, grains, manufactured food (e.g., pasta, pastries, mayonnaise). (GFML)</li>
             <li><strong>Salt Free:</strong> No salt. (None)</li>
             <li><strong>Fat Free/Low Fat:</strong> No oil, butter, eggs, dairy products, alcohol. (LFML)</li>
             <li><strong>Lactose Free:</strong> No dairy products. (NLML)</li>
         </ul>
-
         <div class="highlight">
             <strong>⚠️ Food Allergy Considerations:</strong> Giving the wrong meal to a passenger with allergies can be disastrous. Always confirm SPML requests, check meal lists, and deliver promptly. Check expiry dates before serving (especially BBML, VLML).
         </div>
@@ -1251,28 +1379,28 @@ const SHORT_NOTES_HTML = `
         <p><strong>Wines:</strong> Divided into red, white, rosé, sparkling, and dessert/fortified wines.</p>
         <ul>
             <li><strong>Red Wine:</strong> Fermented with skin (color and tannins). Served at room temperature (approx. 17°C) with red meats, hearty pasta. Varieties: Beaujolais, Bordeaux, Burgundy, Cabernet Sauvignon, Merlot, Pinot Noir, etc.</li>
-            <li><strong>White Wine:</strong> Fermented without skin. Served chilled (7-10°C) with poultry, fish, lighter dishes. Varieties: Chardonnay, Muscadet, Riesling, Sauvignon Blanc, Semillon, etc.</li>
-            <li><strong>Rosé Wines:</strong> Pink/blush color from brief skin contact or blending red/white. Serve chilled (approx. 7-10°C).</li>
+            <li><strong>White Wine:</strong> Fermented without skin. Served chilled (7‑10°C) with poultry, fish, lighter dishes. Varieties: Chardonnay, Muscadet, Riesling, Sauvignon Blanc, Semillon, etc.</li>
+            <li><strong>Rosé Wines:</strong> Pink/blush color from brief skin contact or blending red/white. Serve chilled (approx. 7‑10°C).</li>
             <li><strong>Sparkling Wine:</strong> Bubbles from carbon dioxide. Example: Prosecco (Italy, 11% ABV), Lallier Champagne (France, 12.5% ABV). Serve chilled (7°C).</li>
             <li><strong>Dessert & Fortified Wines:</strong> Very sweet; served with dessert course. Example: Sande Man Port Wine (Portugal, 20% ABV).</li>
         </ul>
 
         <p><strong>Ethiopian Airlines Wine Selection (Examples):</strong></p>
         <ul>
-            <li><strong>Red:</strong> Beau – Rivage – Bordeaux Superieur (France, 12.5%), Boshandel Merlot (South Africa, 14%), Chappelle De La Trinite-Merlot (France, 13.5%), Chateau- Lalande Villeneuve Medoc (France, 13%).</li>
-            <li><strong>White:</strong> Chatu Fondarazac – Entre-Deux-Mers (France, 12.5%), Beau -Rivage Entre-Deux-Mers (France, 12%), Flagstone Poetry Chardonnay (France, 13.5%), Brampton Chardonnay (South Africa, 14%).</li>
+            <li><strong>Red:</strong> Beau – Rivage – Bordeaux Superieur (France, 12.5%), Boshandel Merlot (South Africa, 14%), Chappelle De La Trinite‑Merlot (France, 13.5%), Chateau‑ Lalande Villeneuve Medoc (France, 13%).</li>
+            <li><strong>White:</strong> Chatu Fondarazac – Entre‑Deux‑Mers (France, 12.5%), Beau -Rivage Entre‑Deux‑Mers (France, 12%), Flagstone Poetry Chardonnay (France, 13.5%), Brampton Chardonnay (South Africa, 14%).</li>
         </ul>
 
         <p><strong>Liquor (Spirits):</strong> Unsweetened, distilled beverages with ≥30% ABV. Examples: Chivas Regal (500ml), Johnnie Walker Black Label (500ml), Stolichnaya Vodka (1L), Bombay Gin (500ml).</p>
         <p><strong>Liqueur:</strong> Sweet alcoholic beverages flavored with fruits, herbs, spices, etc. Examples: Cointreau (500ml), Tia Maria (1L), Bailey's (500ml), Benedictine (1L), Remy Martin (500ml), Espresso Bottega (500ml).</p>
         <p><strong>Beer:</strong> Brewed and fermented from starches (malted barley, rice). Served chilled. Examples: Habesha, Bavaria 5%, Bavaria 0% (all 330ml).</p>
 
-        <h5>🧃 5.7.2 Non-Alcoholic Beverages</h5>
+        <h5>🧃 5.7.2 Non‑Alcoholic Beverages</h5>
         <p><strong>Juices:</strong> Orange, Pineapple, Apple, Passion Fruit, Tomato. (200ml servings; brands: Ceres, Lagon)</p>
-        <p><strong>Soft Drinks:</strong> Coca-Cola, Sprite, Fanta Ananas, Fanta Orange, Ambo Mineral (sparkling water), Tonic Water, Ginger Ale. (Various sizes: 200ml, 500ml, 1.5L)</p>
+        <p><strong>Soft Drinks:</strong> Coca‑Cola, Sprite, Fanta Ananas, Fanta Orange, Ambo Mineral (sparkling water), Tonic Water, Ginger Ale. (Various sizes: 200ml, 500ml, 1.5L)</p>
 
         <h5>☕ 5.7.3 Hot Beverages</h5>
-        <p><strong>Coffee:</strong> Second most-traded commodity. Main growing regions: Central America/Caribbean, South America, Africa, Australia/Asia.</p>
+        <p><strong>Coffee:</strong> Second most‑traded commodity. Main growing regions: Central America/Caribbean, South America, Africa, Australia/Asia.</p>
         <ul>
             <li><strong>Brewed Ethiopian Coffee (Jet coffee):</strong> Rectangular coffee pod for aircraft machines.</li>
             <li><strong>Instant Coffee (Nescafé):</strong> Caffeinated (50g) and Decaffeinated (50mg).</li>
@@ -1288,13 +1416,12 @@ const SHORT_NOTES_HTML = `
         <hr>
 
         <div class="tip">
-            <strong>✈️ Final Word for Crew:</strong> Mastery of product knowledge—from food classification and menu types to handling special meals and beverages—ensures safe, efficient, and delightful service. Always prioritize hygiene, temperature control, and passenger satisfaction.
+            <strong>✈️ Final Word for Crew:</strong> Mastery of product knowledge—from food classification and menu types to handling special meals and beverages—ensures safe, efficient, and delightful service. Always prioritise hygiene, temperature control, and passenger satisfaction.
         </div>
 
     </div>
 `;
-    // ===================== END CONFIGURATION =====================
-
+             
     // Helper
     function escapeHtml(str) {
         if (!str) return '';
