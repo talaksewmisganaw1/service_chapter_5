@@ -1,0 +1,2273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>M6: Service Procedure | Cabin Crew Training</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: radial-gradient(circle at 10% 20%, #0a0f1e, #03060f);
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            flex-direction: column;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(59,130,246,0.15) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .quiz-container {
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
+            background: rgba(12, 18, 34, 0.85);
+            backdrop-filter: blur(20px);
+            border-radius: 48px;
+            box-shadow: 0 30px 50px -20px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.08), 0 0 30px rgba(59,130,246,0.2);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        .quiz-header {
+            padding: 28px 26px 20px 26px;
+            background: linear-gradient(135deg, rgba(15, 25, 45, 0.9), rgba(8, 15, 28, 0.95));
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .badge-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .title {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #FFFFFF, #a0e9ff, #c084fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .stats-panel {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .question-counter {
+            background: rgba(139, 92, 246, 0.25);
+            backdrop-filter: blur(4px);
+            padding: 6px 16px;
+            border-radius: 60px;
+            font-bbbubbbbbbbb: 0.85rem;
+            font-weight: 600;
+            color: #c084fc;
+            border: 1px solid rgba(139, 92, 246, 0.5);
+        }
+
+        .progress-track {
+            margin-top: 14px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #3b82f6, #a855f7);
+            border-radius: 20px;
+            transition: width 0.5s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            box-shadow: 0 0 8px rgba(59,130,246,0.5);
+        }
+
+        .quiz-card {
+            padding: 28px 26px 32px;
+            animation: fadeSlide 0.4s ease-out;
+        }
+
+        @keyframes fadeSlide {
+            0% { opacity: 0; transform: translateY(12px);}
+            100% { opacity: 1; transform: translateY(0);}
+        }
+
+        .question-text {
+            font-size: 1.5rem;
+            font-weight: 600;
+            line-height: 1.4;
+            color: #f1f5f9;
+            margin-bottom: 28px;
+            letter-spacing: -0.2px;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .option {
+            background: rgba(20, 30, 55, 0.8);
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .option:hover:not(.disabled-opt) {
+            background: rgba(59, 130, 246, 0.25);
+            border-color: rgba(59, 130, 246, 0.6);
+            transform: translateX(5px);
+        }
+
+        .option.disabled-opt {
+            cursor: default;
+        }
+
+        .option.correct-highlight {
+            background: linear-gradient(105deg, rgba(16, 185, 129, 0.35), rgba(6, 148, 102, 0.25));
+            border-left: 5px solid #10b981;
+            border-top-left-radius: 20px;
+            border-bottom-left-radius: 20px;
+        }
+
+        .option.wrong-highlight {
+            background: linear-gradient(105deg, rgba(239, 68, 68, 0.35), rgba(185, 28, 28, 0.25));
+            border-left: 5px solid #ef4444;
+        }
+
+        .option-prefix {
+            font-weight: 800;
+            font-size: 1.1rem;
+            width: 34px;
+            height: 34px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #cbd5e6;
+        }
+
+        .option-text {
+            font-size: 0.98rem;
+            font-weight: 500;
+            color: #e2e8f0;
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .feedback-panel {
+            background: rgba(0, 0, 0, 0.55);
+            border-radius: 24px;
+            padding: 18px 22px;
+            margin: 16px 0 20px;
+            border-left: 5px solid;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(8px);}
+            to { opacity: 1; transform: translateY(0);}
+        }
+
+        .feedback-correct {
+            border-left-color: #10b981;
+            background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.05));
+        }
+
+        .feedback-wrong {
+            border-left-color: #ef4444;
+            background: linear-gradient(135deg, rgba(239,68,68,0.12), rgba(239,68,68,0.03));
+        }
+
+        .feedback-title {
+            font-weight: 800;
+            font-size: 1rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .feedback-text {
+            font-size: 0.9rem;
+            color: #cbd5e6;
+            line-height: 1.5;
+        }
+
+        .correct-title { color: #4ade80; }
+        .wrong-title { color: #f87171; }
+
+        .nav-buttons {
+            display: flex;
+            gap: 16px;
+            margin-top: 8px;
+        }
+
+        .btn {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 14px 0;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1rem;
+            color: #cbd5e1;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(95deg, #3b82f6, #8b5cf6);
+            border: none;
+            color: white;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+
+        .btn-primary:active { transform: scale(0.97); }
+        .btn-outline:active { transform: scale(0.97); background: rgba(255,255,255,0.1);}
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none;}
+
+        .result-container {
+            text-align: center;
+            padding: 20px 0 30px;
+        }
+
+        .score-circle {
+            width: 170px;
+            height: 170px;
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border-radius: 100%;
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            border: 3px solid rgba(59, 130, 246, 0.7);
+            box-shadow: 0 0 40px rgba(59,130,246,0.3);
+        }
+
+        .score-number {
+            font-size: 4rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff, #a5f3fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .verdict {
+            font-size: 1.7rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #facc15, #f59e0b);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin: 16px 0 12px;
+        }
+
+        .restart-btn {
+            background: linear-gradient(95deg, #2563eb, #7c3aed);
+            border: none;
+            padding: 16px 28px;
+            margin-top: 28px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            width: auto;
+            display: inline-block;
+        }
+
+        /* Landing / resume screens */
+        .landing, .resume-screen {
+            padding: 40px 26px;
+            text-align: center;
+        }
+
+        .landing h2, .resume-screen h2 {
+            font-size: 2rem;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #fff, #a0e9ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .landing p, .resume-screen p {
+            color: #cbd5e6;
+            margin-bottom: 32px;
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            max-width: 300px;
+            margin: 0 auto;
+        }
+
+        .big-btn {
+            padding: 16px;
+            background: rgba(59, 130, 246, 0.2);
+            border: 1px solid rgba(59, 130, 246, 0.5);
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .big-btn:hover {
+            background: rgba(59, 130, 246, 0.4);
+            transform: scale(1.02);
+        }
+
+        .module-link-btn {
+            padding: 14px 20px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 60px;
+            font-weight: 700;
+            font-size: 1rem;
+            color: #cbd5e1;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .module-link-btn:hover {
+            background: rgba(255, 255, 255, 0.14);
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.35);
+            transform: scale(1.02);
+        }
+
+        /* Notes page */
+        .notes-page {
+            padding: 28px 26px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .notes-page h3 {
+            font-size: 1.6rem;
+            margin-bottom: 20px;
+            color: #c084fc;
+        }
+
+        .notes-content {
+            color: #e2e8f0;
+            line-height: 1.6;
+        }
+
+        .notes-content h4 {
+            margin: 20px 0 8px;
+            color: #facc15;
+        }
+
+        .notes-content ul {
+            margin-left: 20px;
+            margin-bottom: 16px;
+        }
+
+        .notes-content li {
+            margin-bottom: 6px;
+        }
+
+        .back-btn {
+            margin-top: 20px;
+            background: rgba(255,255,255,0.1);
+            border: none;
+            padding: 12px;
+            border-radius: 40px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        /* Styled "Read Short Note" button at the bottom of quiz */
+        .notes-button-wrapper {
+            padding: 20px 26px 26px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            margin-top: 8px;
+        }
+
+        .notes-button {
+            background: linear-gradient(95deg, #2563eb, #7c3aed);
+            border: none;
+            border-radius: 60px;
+            padding: 16px 20px;
+            width: 100%;
+            font-weight: 700;
+            font-size: 1rem;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(139, 92, 246, 0.4);
+        }
+
+        .notes-button:hover {
+            transform: scale(1.02);
+            background: linear-gradient(135deg, #9b6cf6, #d094fc);
+            box-shadow: 0 6px 18px rgba(139, 92, 246, 0.6);
+        }
+
+        footer {
+            font-size: 0.7rem;
+            text-align: center;
+            padding: 18px;
+            color: #4b5563;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        #developers {
+            display: flex;
+            flex-direction: column;
+            gap: .3rem;
+            font-size: 0.7rem;
+            text-align: center;
+            padding: 18px;
+            color: #4b5563;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+
+        @media (max-width: 550px) {
+            .quiz-card { padding: 20px 18px; }
+            .question-text { font-size: 1.25rem; }
+            .option { padding: 12px 16px; }
+            .title { font-size: 1.4rem; }
+            .notes-button { padding: 14px; font-size: 0.9rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="quiz-container" id="appRoot"></div>
+<div class="developers" id="developers">Developed by:
+     <div>Ashenafi Girma
+      and
+       Talaksew Agegnehu</div>
+</div>
+
+
+<script>
+    // ===================== CONFIGURATION (EASY TO CHANGE) =====================
+    // 1. Subject name – used in titles and verdict messages
+    const SUBJECT_NAME = "M6: Service Procedure";
+
+    // 2. Questions data – each object: { text, options: [4 strings], correct: index (0-3), explanation }
+const QUESTIONS_DATA = [
+  {
+    "id": 1,
+    "text": "When greeting passengers during boarding, how should cabin crew show respect according to Ethiopian custom?",
+    "options": ["With a casual nod of the head", "With a bow bending at the waist", "With a firm handshake", "With a wave of the hand"],
+    "correct": 1,
+    "explanation": "It is customary to bow bending at the waist at the first interaction and farewell with passengers."
+  },
+  {
+    "id": 2,
+    "text": "A Star Alliance Gold member is seated in the main cabin. What service are they entitled to?",
+    "options": ["Full C-9 service throughout the flight", "Priority meal choice only", "Utmost attention but not C-9 service", "No special attention at all"],
+    "correct": 2,
+    "explanation": "Frequent flyers including Star Alliance elite members seated in main cabin are not entitled to C-9 service but must be given utmost attention."
+  },
+  {
+    "id": 3,
+    "text": "How should VIP passengers be addressed during meal service?",
+    "options": ["By their seat number", "By their frequent flyer status", "By their destination city", "By their title and name"],
+    "correct": 3,
+    "explanation": "VIP passengers must be given priority during meal choice and always addressed by title and name."
+  },
+  {
+    "id": 4,
+    "text": "When should children's give-away kits be distributed?",
+    "options": ["After the meal service is complete", "During the drink service", "As soon as possible after boarding", "Just before landing"],
+    "correct": 2,
+    "explanation": "Children's give-away kits should be given as soon as possible."
+  },
+  {
+    "id": 5,
+    "text": "What is the correct posture while passengers are on board?",
+    "options": ["Lean on passenger seats when tired", "Sit on the edge of armrests briefly", "Stand in the galley only", "Never lean on seats or sit on armrests"],
+    "correct": 3,
+    "explanation": "It is not allowed to lean on passenger seats or sit on the edge of armrests at any time while passengers are on board."
+  },
+  {
+    "id": 6,
+    "text": "Before entering the C-9 cabin from Economy class, what must a crew member check?",
+    "options": ["That the seatbelt sign is off", "That the aisle is free from cart/trolley service", "That the captain has given permission", "That the galley door is closed"],
+    "correct": 1,
+    "explanation": "Cabin crew must check whether the aisle is free from cart/trolley service before entering the C-9 cabin."
+  },
+  {
+    "id": 7,
+    "text": "When a passenger requests ice in their drink, what is the correct procedure?",
+    "options": ["Add ice after pouring the drink", "Serve ice on the side in a separate cup", "Put ice first before pouring the drink", "Ask the passenger to add ice themselves"],
+    "correct": 2,
+    "explanation": "Always offer ice if the passengers would like ice; put the ice first before pouring the drink."
+  },
+  {
+    "id": 8,
+    "text": "What tool must be used to pick ice for a passenger's drink?",
+    "options": ["A spoon", "A clean napkin", "A gloved hand", "An ice tong"],
+    "correct": 3,
+    "explanation": "Always use an ice tong to pick ice."
+  },
+  {
+    "id": 9,
+    "text": "How should a canned soft drink be served to a passenger?",
+    "options": ["Directly in the can with a straw", "Poured into a tumbler unless the passenger insists otherwise", "With the can opened and placed on a napkin", "Poured over ice in a plastic cup"],
+    "correct": 1,
+    "explanation": "Canned drinks shall be poured in a tumbler unless the passenger insists not to."
+  },
+  {
+    "id": 10,
+    "text": "When serving wine from a small bottle, what should be done first?",
+    "options": ["Hand the bottle to the passenger unopened", "Pour directly into the passenger's cup", "Pour a small amount on a tumbler then serve", "Ask the passenger to open the bottle"],
+    "correct": 2,
+    "explanation": "Always open both white wine and red wine small bottle, pour a small amount on a tumbler then serve unless the customer insists not to have it with a tumbler."
+  },
+  {
+    "id": 11,
+    "text": "Which hand should be used to pour and serve drinks?",
+    "options": ["The left hand always", "The right hand unless left-handed", "Either hand as convenient", "Both hands for balance"],
+    "correct": 1,
+    "explanation": "Always use right hand to pour and serve any drink, unless you are left-handed."
+  },
+  {
+    "id": 12,
+    "text": "What should be presented for a long drink that needs a mix?",
+    "options": ["An extra napkin", "A straw", "A stirring rod", "A small spoon"],
+    "correct": 2,
+    "explanation": "For a long drink that needs a mix, present a stirring rod."
+  },
+  {
+    "id": 13,
+    "text": "How should a drink request made after the cabin service is finished be handled?",
+    "options": ["Tell the passenger the bar is closed", "Direct them to the galley to help themselves", "Serve it in a paper cup without a tray", "Ask how they want it, prepare in the galley, serve on a snack tray"],
+    "correct": 3,
+    "explanation": "For individual drink requests after service, ask how the passenger wants the drink, prepare it in the galley and serve using a snack tray."
+  },
+  {
+    "id": 14,
+    "text": "What must always accompany a drink served to a passenger?",
+    "options": ["A stirring rod", "A small snack", "A napkin", "A glass of water"],
+    "correct": 2,
+    "explanation": "Always serve the drink with a napkin."
+  },
+  {
+    "id": 15,
+    "text": "If a passenger's first choice of drink is not available, what should the crew do?",
+    "options": ["Tell them to choose something else", "Check with other passengers if they have it", "Apologize and offer an alternative as soon as possible", "Serve water without asking"],
+    "correct": 2,
+    "explanation": "If a passenger's first choice is not available, apologize and offer an alternative, making sure to serve it as soon as possible."
+  },
+  {
+    "id": 16,
+    "text": "On a flight over five hours with only one service, what must be passed before arrival?",
+    "options": ["A full meal trolley", "A duty-free trolley", "A snack box", "A full drink trolley"],
+    "correct": 3,
+    "explanation": "On flights over five hours flying time, a full drink trolley shall be passed before arrival if the sector has only one service."
+  },
+  {
+    "id": 17,
+    "text": "By what time must all services be completed before landing?",
+    "options": ["15 minutes before landing", "45 minutes before landing", "30 minutes before landing", "60 minutes before landing"],
+    "correct": 2,
+    "explanation": "All services have to be completed 30 minutes before landing."
+  },
+  {
+    "id": 18,
+    "text": "When serving drinks and meals together, which comes first?",
+    "options": ["The drink, followed by the meal tray", "Both at the same time on the same tray", "The meal tray, followed by the drink", "The drink only after the meal is finished"],
+    "correct": 2,
+    "explanation": "Whenever serving drinks and meal together, serve the meal tray first and follow with drink."
+  },
+  {
+    "id": 19,
+    "text": "How often should crew walk through the cabin with drinks on medium and long-haul flights after service?",
+    "options": ["Every 10 minutes", "Every 20 minutes", "Every 15 minutes", "Every 30 minutes"],
+    "correct": 1,
+    "explanation": "After service is completed, cabin crew is obliged to go around the cabin every 20 minutes with assorted drinks."
+  },
+  {
+    "id": 20,
+    "text": "Where should the coffee thermos be placed during hot beverage service?",
+    "options": ["Towards the passenger side", "On top of the trolley", "Towards the cabin crew (first drawer)", "Inside the galley only"],
+    "correct": 2,
+    "explanation": "During hot beverage service, coffee thermos shall be placed towards the cabin crew (first drawer)."
+  },
+  {
+    "id": 21,
+    "text": "How should the Thermos Flask dispensers be positioned?",
+    "options": ["Facing outward towards passengers", "Lying flat on the trolley", "Upright on the trolley top", "Facing inward inside the drawer"],
+    "correct": 3,
+    "explanation": "The Thermos Flask dispensers shall always be kept facing inwards (inside the drawer), not to the passenger's side."
+  },
+  {
+    "id": 22,
+    "text": "What is the direction of service flow in Economy class?",
+    "options": ["From AFT to FWD", "From FWD to AFT", "From the middle to both ends", "From window seats to aisle seats"],
+    "correct": 1,
+    "explanation": "EY class service flow direction must start from FWD to AFT throughout the cabin."
+  },
+  {
+    "id": 23,
+    "text": "How must meal trolleys be loaded across the galleys?",
+    "options": ["Only the front galley loads meals", "Only the rear galley loads meals", "Evenly by all galleys", "By whichever galley is closest"],
+    "correct": 2,
+    "explanation": "Meal trolleys must be loaded evenly by all galleys so that service can be completed fairly and equally in a short time."
+  },
+  {
+    "id": 24,
+    "text": "How should SPML casseroles and trays be distributed among crew?",
+    "options": ["Randomly by the team leader", "Only by the most senior crew", "According to passenger seating assignment", "By the galley closest to the passenger"],
+    "correct": 2,
+    "explanation": "SPML casseroles and trays must also be distributed among crew according to customer seating assignment."
+  },
+  {
+    "id": 25,
+    "text": "What important rule applies when distributing meal trays?",
+    "options": ["Trays can be distributed before drinks", "Trays must not be distributed without drinks", "Trays should be distributed only after all drinks", "Trays can be distributed without napkins"],
+    "correct": 1,
+    "explanation": "Trays must not be distributed without drinks."
+  },
+  {
+    "id": 26,
+    "text": "Which of these juices is available in Economy class?",
+    "options": ["Mango juice", "Passion fruit juice", "Grape juice", "Cranberry juice"],
+    "correct": 1,
+    "explanation": "The juices available are orange, pineapples, apple, passion fruit, and tomato."
+  },
+  {
+    "id": 27,
+    "text": "Which soft drink is available in Economy class?",
+    "options": ["Pepsi", "Mountain Dew", "Fanta Ananas", "7 Up"],
+    "correct": 2,
+    "explanation": "The soft drinks available are Coca Cola, Sprite, Light Coke, Fanta Orange, and Fanta Ananas."
+  },
+  {
+    "id": 28,
+    "text": "Which of these is classified as a 'Mix' in Economy class?",
+    "options": ["Orange juice", "Black tea", "Ginger ale", "Tomato juice"],
+    "correct": 2,
+    "explanation": "Mixes include Ginger ale, Tonic, and Ambo (Sparkling water/Soda water)."
+  },
+  {
+    "id": 29,
+    "text": "Which beer is listed as available in Economy class?",
+    "options": ["Heineken", "Carlsberg", "Budweiser", "Habsha"],
+    "correct": 3,
+    "explanation": "The alcoholic drinks available include Wine (Cuvée Special red and white) and Beer (Habsha)."
+  },
+  {
+    "id": 30,
+    "text": "What lining is used on the drawers for FBF/CBF/Eye Opener service setup?",
+    "options": ["Paper towel", "Linen cloth", "Paper napkin", "Plastic sheet"],
+    "correct": 2,
+    "explanation": "For FBF/CBF/Eye Opener service, items must be set on two clean drawers lined with paper napkin."
+  },
+  {
+    "id": 31,
+    "text": "What lining is used on the drawers for LCH/DNR/HLM/REF service setup?",
+    "options": ["Paper napkin", "Paper towel", "Linen cloth", "Plastic sheet"],
+    "correct": 1,
+    "explanation": "For LCH/DNR/HLM/REF service, items must be set on two clean drawers lined with paper towel."
+  },
+  {
+    "id": 32,
+    "text": "When must cocktail biscuits be served before LCH service?",
+    "options": ["When there is a SDW service", "Only when passengers request them", "When there is no SDW service", "Only on flights over 5 hours"],
+    "correct": 2,
+    "explanation": "Cocktail biscuits in EY class must be served before LCH service where there is no SDW service."
+  },
+  {
+    "id": 33,
+    "text": "For DNR service, until what departure time should cocktail biscuits be served?",
+    "options": ["Until 19:00", "Until 22:00", "Until 21:00", "Until 23:00"],
+    "correct": 2,
+    "explanation": "Cocktail biscuits must be served for DNR service departing till 21:00."
+  },
+  {
+    "id": 34,
+    "text": "On which short haul flights are cocktail biscuits served as a refreshment?",
+    "options": ["Where a full meal service is provided", "Only on international flights", "Where no meal service is provided", "Only on domestic flights"],
+    "correct": 2,
+    "explanation": "Cocktail biscuits must be served as REFRESHMENT service on short haul flights where no meal service is provided."
+  },
+  {
+    "id": 35,
+    "text": "On HLM day flights, when are cocktail biscuits served before arrival?",
+    "options": ["More than 3 hours before arrival", "More than 4 hours before arrival", "More than 6 hours before arrival", "More than 5 hours before arrival"],
+    "correct": 3,
+    "explanation": "Cocktail biscuits must be served on HLM (day flights) that take more than 5 hours' flight before arrival to destinations."
+  },
+  {
+    "id": 36,
+    "text": "On which flights must cocktail biscuits NOT be served with HLM?",
+    "options": ["Flights over 3 hours", "Day flights over 5 hours", "Flights less than 3 hours and late-night flights", "Medium haul day flights"],
+    "correct": 2,
+    "explanation": "Cocktail biscuit must not be served on less than 3 hours and late-night flights with HLM service."
+  },
+  {
+    "id": 37,
+    "text": "What is placed on top of the trolley for the 2nd hot beverage service?",
+    "options": ["Coffee, tea, paper cups, water and tumblers", "Only coffee and tea", "Juices and soft drinks", "Beer and wine"],
+    "correct": 0,
+    "explanation": "For the 2nd hot beverage trolley setup, place coffee and tea in thermos flask, paper cup, water and tumblers."
+  },
+  {
+    "id": 38,
+    "text": "For the tray collection trolley setup, what is placed on top of the trolley?",
+    "options": ["One clean drawer with a large plastic bag", "Three clean drawers with napkins", "Two clean drawers covered with a small plastic bag", "A single tray with a linen cover"],
+    "correct": 2,
+    "explanation": "Place two clean drawers covered with the small plastic bag on top of the trolley for tray collection."
+  },
+  {
+    "id": 39,
+    "text": "Who should receive service priority before other passengers?",
+    "options": ["VIP passengers", "Elderly passengers", "Children", "Frequent flyers"],
+    "correct": 2,
+    "explanation": "Give children priority before commencing service for other passengers."
+  },
+  {
+    "id": 40,
+    "text": "What must be checked in the oven before heating meals?",
+    "options": ["That the oven light is working", "That the oven door seals properly", "For any foreign leftover objects", "That the temperature is set to maximum"],
+    "correct": 2,
+    "explanation": "Check the oven for any foreign leftover objects (stickers, cleaning towels, grease residues etc.) before heating meal."
+  },
+  {
+    "id": 41,
+    "text": "From which passenger should meal service start?",
+    "options": ["The aisle seat passenger", "The passenger closest to the galley", "The window seat passenger", "The passenger who ordered first"],
+    "correct": 2,
+    "explanation": "Service shall start from the window seat passenger."
+  },
+  {
+    "id": 42,
+    "text": "Which passenger is given priority regardless of seat position?",
+    "options": ["A male passenger", "A frequent flyer", "A female passenger", "A passenger with a window seat"],
+    "correct": 2,
+    "explanation": "A female passenger shall be given priority whichever seat they occupy."
+  },
+  {
+    "id": 43,
+    "text": "When should an Economy class passenger be awakened?",
+    "options": ["For every service", "For main meal services only", "Never during the flight", "Only for the drink service"],
+    "correct": 1,
+    "explanation": "Awaken Economy class passenger for main meal services only but be careful with passengers who are deep asleep."
+  },
+  {
+    "id": 44,
+    "text": "What must be done before telling a passenger their meal choice is unavailable?",
+    "options": ["Check with the captain", "Offer them a different meal", "Cross check availability with all crew", "Check the catering manual"],
+    "correct": 2,
+    "explanation": "Cross check availability of meal choice with all crew before telling the passenger the unavailability."
+  },
+  {
+    "id": 45,
+    "text": "How should the logo on a tray be positioned?",
+    "options": ["Facing the crew", "Any direction is fine", "Facing the passenger", "Covered with a napkin"],
+    "correct": 2,
+    "explanation": "Ensure logo on tray and table face passengers and always kept clean."
+  },
+  {
+    "id": 46,
+    "text": "When moving carts and trolleys inside the cabin, what must be done?",
+    "options": ["Move them quickly to save time", "Ask passengers to move aside", "Always cover them with linen", "Move them only when the aisle is empty"],
+    "correct": 2,
+    "explanation": "Always cover carts and trolleys with linen when moving them inside the cabin."
+  },
+  {
+    "id": 47,
+    "text": "If a napkin falls on the floor during meal service, what should be done?",
+    "options": ["Pick it up and place it back on the tray", "Leave it until after the service", "Pick it up using a paper napkin and replace with a clean one", "Kick it under the seat"],
+    "correct": 2,
+    "explanation": "If meal service items fell on the floor, pick it up using paper napkin and change it with a clean one, delivered using a lined tray."
+  },
+  {
+    "id": 48,
+    "text": "What should be done before picking up a passenger's tray?",
+    "options": ["Wait until they finish their drink", "Stack the trays immediately", "Ask for permission", "Clear the entire row at once"],
+    "correct": 2,
+    "explanation": "Always ask permission before picking up the passenger's tray."
+  },
+  {
+    "id": 49,
+    "text": "Who is responsible for writing a detailed report of any discrepancy?",
+    "options": ["Any cabin crew member", "The captain", "The Team Leader", "The catering agent"],
+    "correct": 2,
+    "explanation": "Team Leader shall write a detailed report of any discrepancy in their flight report for further investigation."
+  },
+  {
+    "id": 50,
+    "text": "On short haul flights under 1.15 hours, where does service start?",
+    "options": ["From the last row of EY class", "From the middle of the cabin", "From the 1st row of EY class", "From the rear galley"],
+    "correct": 2,
+    "explanation": "On short haul flights under 1.15 hours, start service from the 1st row of EY class."
+  },
+  {
+    "id": 51,
+    "text": "How are cold drinks served on short haul flights under 1.15 hours?",
+    "options": ["In paper cups", "In the can", "With a tumbler", "With a stirring rod only"],
+    "correct": 2,
+    "explanation": "All cold drinks are served with a tumbler on short haul flights under 1.15 hours."
+  },
+  {
+    "id": 52,
+    "text": "How are coffee or tea served on short haul flights under 1.15 hours?",
+    "options": ["In a tumbler", "In a ceramic cup", "In a paper cup", "In a glass"],
+    "correct": 2,
+    "explanation": "Coffee or tea is served with a paper cup on short haul flights under 1.15 hours."
+  },
+  {
+    "id": 53,
+    "text": "On short haul flights under 1.15 hours, what is served alongside drinks?",
+    "options": ["A hot meal tray", "A snack box", "SDw or fruit cake with a napkin", "A three course meal"],
+    "correct": 2,
+    "explanation": "Serve SDw or fruit cake with napkin on short haul flights under 1.15 hours."
+  },
+  {
+    "id": 54,
+    "text": "On Q-400 aircraft, where does service start?",
+    "options": ["From FWD and MID", "From AFT only", "From FWD only", "From MID only"],
+    "correct": 2,
+    "explanation": "Service must start from FWD and MID except on Q-400 where service starts from FWD."
+  },
+  {
+    "id": 55,
+    "text": "On short haul flights of 1.15 to 3 hours, what should be promoted if available?",
+    "options": ["Duty free sales", "Loyalty program sign-up", "Wi-Fi connectivity", "Seat upgrades"],
+    "correct": 2,
+    "explanation": "Promote and sell Wi-Fi connectivity if available on short haul flights of 1.15 to 3 hours."
+  },
+  {
+    "id": 56,
+    "text": "What is served on short haul flights of 1.15 to 3 hours?",
+    "options": ["A full breakfast", "A sandwich only", "HLM trays with drinks and hot beverage", "A three course meal"],
+    "correct": 2,
+    "explanation": "Serve HLM trays with drinks and hot beverage using trolley on short haul flights of 1.15 to 3 hours."
+  },
+  {
+    "id": 57,
+    "text": "During FBF/CBF service, where must soft drinks, mixes and alcoholic drinks be carried?",
+    "options": ["On top of the trolley", "On a separate tray", "Inside the trolley", "In the galley only"],
+    "correct": 2,
+    "explanation": "Soft drinks, mixes and alcoholic drinks must be carried inside the trolley so that specific requests are entertained."
+  },
+  {
+    "id": 58,
+    "text": "During HLM day flight service, where are extra drinks kept?",
+    "options": ["On top of the trolley", "In a drawer insert", "Inside the trolley", "On the galley counter"],
+    "correct": 2,
+    "explanation": "During HLM day flight service, extra drinks must be kept inside the trolley."
+  },
+  {
+    "id": 59,
+    "text": "On HLM night flights, when should additional drink requests be attended?",
+    "options": ["Before the trays are collected", "Only after landing", "Immediately after trays are collected", "During the next service"],
+    "correct": 2,
+    "explanation": "Ensure additional drink requests are attended immediately after trays are collected on HLM night flights."
+  },
+  {
+    "id": 60,
+    "text": "During Lunch with Sandwich service on early morning flights, what is passed after the first drink service?",
+    "options": ["The meal trolley", "The coffee and tea trolley", "The duty free trolley", "The snack box trolley"],
+    "correct": 2,
+    "explanation": "After serving first drink and hot beverages with sandwich, pass the Duty Free trolley."
+  },
+  {
+    "id": 61,
+    "text": "For DNR flights departing before 21:00, what is served with the drinks first?",
+    "options": ["The meal trays", "A snack box", "Cocktail biscuits", "Fruit cake"],
+    "correct": 2,
+    "explanation": "For DNR service departing before 21:00, prepare drink trolley and serve drinks with Cocktail biscuits."
+  },
+  {
+    "id": 62,
+    "text": "For DNR flights departing after 21:00, how are drinks served?",
+    "options": ["With cocktail biscuits before the meal", "Only after the meal", "With the meal", "Only on request"],
+    "correct": 2,
+    "explanation": "For DNR service departing after 21:00, prepare drink trolley and serve drinks with meal."
+  },
+  {
+    "id": 63,
+    "text": "During DNR service, who receives priority when serving meal trays?",
+    "options": ["VIP passengers", "Elderly passengers", "Children", "Frequent flyers"],
+    "correct": 2,
+    "explanation": "Serve DNR trays with 2nd drinks on top of a trolley and give priority to children."
+  },
+  {
+    "id": 64,
+    "text": "What is served with the Eye Opener drink service?",
+    "options": ["A full breakfast", "A sandwich", "Bulk fruit cake or muffin with a napkin", "A hot meal"],
+    "correct": 2,
+    "explanation": "Place bulk fruit cake/muffin inside drinks trolley with napkin and serve drink and bulk fruit cake/muffin with napkin."
+  },
+  {
+    "id": 65,
+    "text": "What does the Refreshment Counter on Far East flights include?",
+    "options": ["All beverages including hot drinks", "Only alcoholic drinks", "All non-alcoholic drinks and ice", "Only hot beverages"],
+    "correct": 2,
+    "explanation": "The drink counter will comprise of all non-alcoholic drinks and ice and will not include hot beverages."
+  },
+  {
+    "id": 66,
+    "text": "What must happen to the Refreshment Counter during turbulence?",
+    "options": ["It must be secured with a rope", "It must be monitored by crew", "It must be stowed away", "It must be closed with a lid"],
+    "correct": 2,
+    "explanation": "The drink counter must be stowed away at times of turbulence."
+  },
+  {
+    "id": 67,
+    "text": "Who makes the announcement about the drink counter and noodle service availability?",
+    "options": ["The captain", "The galley operator", "The Team Leader", "The most senior crew member"],
+    "correct": 2,
+    "explanation": "TL will make an announcement to inform the availability of the drink counter and noodle service, when applicable."
+  },
+  {
+    "id": 68,
+    "text": "For IFTAR on short haul flights under 3 hours, what is distributed to fasting passengers?",
+    "options": ["A full hot meal", "A sandwich and juice", "A snack box with a bottle of water", "Dates and samosa"],
+    "correct": 2,
+    "explanation": "Distribute the snack box with bottle of water for the fasting passengers in trolley on short haul flights under 3 hours."
+  },
+  {
+    "id": 69,
+    "text": "For IFTAR on medium haul flights over 3 hours, when are fasting passengers' seat numbers noted?",
+    "options": ["During the hot meal service", "After the meal service is complete", "While cocktail biscuits are served on LCH/HLM service", "During boarding"],
+    "correct": 2,
+    "explanation": "Note and write the seat numbers of fasting passengers while cocktail biscuits are served on LCH/HLM service."
+  },
+  {
+    "id": 70,
+    "text": "For IFTAR on medium/long haul flights departing after 19:00, how are dates and samosa/spring roll served?",
+    "options": ["Automatically to all passengers", "Only to fasting passengers", "On request", "After the main meal"],
+    "correct": 2,
+    "explanation": "For medium/long haul flights that depart after 19:00, serve the dates and samosa/spring roll on request."
+  },
+  {
+    "id": 71,
+    "text": "Which flights include the LBM (Light Bite Meal) service?",
+    "options": ["All outbound Europe flights", "All flights to the Far East", "Four outbound Europe flights departing after midnight including ARN and DME", "All domestic flights"],
+    "correct": 2,
+    "explanation": "LBM is for four outbound Europe flights with departure time after midnight including ARN and DME."
+  },
+  {
+    "id": 72,
+    "text": "What accompanies the LBM tray of salad, focaccia and desert?",
+    "options": ["Only water", "Only juice", "Tea and coffee along with drinks", "Only soft drinks"],
+    "correct": 2,
+    "explanation": "Serve drink and LBM with the tray of salad, focaccia and desert along with tea and coffee."
+  },
+  {
+    "id": 73,
+    "text": "After LBM service, what should be done with the lavatories?",
+    "options": ["Lock them for landing", "Check only the soap supply", "Attend, clean and replenish them", "Nothing needs to be done"],
+    "correct": 2,
+    "explanation": "After LBM service, attend (clean and replenish) lavatories."
+  },
+  {
+    "id": 74,
+    "text": "On which flights should Wi-Fi connectivity be promoted and sold?",
+    "options": ["Only on domestic flights", "Only on Far East flights", "On medium and long haul flights if available", "Only on Q-400 aircraft"],
+    "correct": 2,
+    "explanation": "Promote and sell Wi-Fi connectivity if available on medium and long haul flights."
+  },
+  {
+    "id": 75,
+    "text": "What is the correct way to handle a passenger who is deeply asleep during a main meal service?",
+    "options": ["Wake them immediately", "Do not wake them at all", "Be careful when waking them up", "Leave their meal on the tray table"],
+    "correct": 2,
+    "explanation": "Awaken Economy class passenger for main meal services only but be careful with passengers who are deep asleep when waking them up."
+  },
+  {
+    "id": 76,
+    "text": "During the second drink service for LCH/DNR, what is included?",
+    "options": ["Only hot beverages", "Only cold drinks", "Hot beverages, non-alcohol and alcohol drinks", "Only water and juice"],
+    "correct": 2,
+    "explanation": "LCH/DNR second drinks are served with hot beverages, non-alcohol and alcohol drinks, i.e., soft drinks, juices, water, beer and wine."
+  },
+  {
+    "id": 77,
+    "text": "For HLM second drinks, what is served on top of the trolley?",
+    "options": ["Only hot beverages", "Only cold beverages", "Cold and first hot beverages", "Only alcoholic drinks"],
+    "correct": 2,
+    "explanation": "HLM second drinks are served with cold and 1st hot beverages on top of trolley."
+  },
+  {
+    "id": 78,
+    "text": "What is placed in the drawer insert during the 2nd drink trolley setup?",
+    "options": ["Beer and white wine", "Juices and soft drinks", "Sugar, sweetener, creamer, lemon, paper cup, plastic spoon", "Coffee and tea"],
+    "correct": 2,
+    "explanation": "Sugar, sweetener, creamer, lemon, paper cup, plastic spoon are placed in a drawer insert fixed on the trolley."
+  },
+  {
+    "id": 79,
+    "text": "During sandwich service on early morning flights, where are soft drinks and alcoholic drinks kept?",
+    "options": ["On top of the trolley", "In the galley refrigerator", "In a separate drawer inside the trolley", "On a snack tray"],
+    "correct": 2,
+    "explanation": "Keep soft drinks and alcoholic drinks in separate drawer inside trolley during sandwich service on early morning flights."
+  },
+  {
+    "id": 80,
+    "text": "During sandwich service between two hot meal services, where are extra drinks kept?",
+    "options": ["On top of the trolley", "In the galley only", "In drawers inside the trolley", "On a side table"],
+    "correct": 2,
+    "explanation": "Keep extra drinks in drawers inside trolley during sandwich service between two hot meal services."
+  },
+  {
+    "id": 81,
+    "text": "What is used to collect left behind items from the cabin during service?",
+    "options": ["A tray with a napkin", "A trash compactor", "Plastic bags or a lined drawer", "A carton box"],
+    "correct": 2,
+    "explanation": "Collect left behind items from the cabin with plastic bags or a lined drawer."
+  },
+  {
+    "id": 82,
+    "text": "When are hot beverages served on request during short haul flights under 1.15 hours?",
+    "options": ["On all flights", "On late night flights", "On early morning departing flights", "On flights over 2 hours"],
+    "correct": 2,
+    "explanation": "Serve hot beverages on request on early morning departing flights during short haul flights under 1.15 hours."
+  },
+  {
+    "id": 83,
+    "text": "What is the note regarding service start on short haul flights under 1.15 hours?",
+    "options": ["Service starts from AFT only", "Service starts from MID only", "Service starts from FWD and MID, except Q-400 starts from FWD", "Service starts from the rear galley"],
+    "correct": 2,
+    "explanation": "Service must start from FWD and MID except on Q-400 where service starts from FWD."
+  },
+  {
+    "id": 84,
+    "text": "During the Lunch (LCH) with Cocktail Crackers service, what is served first?",
+    "options": ["The meal", "Coffee and tea", "The first drink with cocktail biscuit", "The dessert"],
+    "correct": 2,
+    "explanation": "Serve first drink per the setup with cocktail biscuit during LCH with Cocktail Crackers service."
+  },
+  {
+    "id": 85,
+    "text": "During the Lunch (LCH) with Cocktail Crackers service, when is the meal served?",
+    "options": ["Before the first drink", "Only after all drinks are served", "Together with the second drink on top of the trolley", "After coffee and tea"],
+    "correct": 2,
+    "explanation": "Serve meal together with second drink on top of trolley during LCH with Cocktail Crackers service."
+  },
+  {
+    "id": 86,
+    "text": "During FBF/CBF service, what is done while collecting used trays?",
+    "options": ["The cabin is cleaned", "Duty free is passed", "Second coffee/tea is served", "The next meal is heated"],
+    "correct": 2,
+    "explanation": "Serve second coffee/tea collecting the used trays using trolley during FBF/CBF service."
+  },
+  {
+    "id": 87,
+    "text": "During the Eye Opener service, where are soft drinks, mixes and alcoholic drinks carried?",
+    "options": ["On top of the trolley", "On a separate tray", "Inside the trolley", "In the galley"],
+    "correct": 2,
+    "explanation": "Soft drinks, mixes and alcoholic drinks must be carried inside the trolley so that specific requests are entertained during Eye Opener service."
+  },
+  {
+    "id": 88,
+    "text": "What is used to enable pouring at the Refreshment Counter?",
+    "options": ["A pouring spout", "Paper cups stacked on the counter", "Tumblers and napkins on a snack tray on the side", "A pitcher of water"],
+    "correct": 2,
+    "explanation": "Tumblers and napkins will be set on a snack tray on the side to enable pouring at the Refreshment Counter."
+  },
+  {
+    "id": 89,
+    "text": "What must be done with opened drinks at the Refreshment Counter?",
+    "options": ["Discard them immediately", "Store them in the refrigerator", "Use them and display on trolleys for the consecutive service", "Give them to passengers to take home"],
+    "correct": 2,
+    "explanation": "Opened drinks must be used and displayed on trolleys to be served for the consecutive service."
+  },
+  {
+    "id": 90,
+    "text": "Where are noodles placed for Far East flights?",
+    "options": ["On the galley counter", "Inside the oven", "On a drawer together with the drinks on top of the galley", "On the trolley top"],
+    "correct": 2,
+    "explanation": "Noodles must be placed on drawer together with the drinks on top of the galley for Far East flights."
+  },
+  {
+    "id": 91,
+    "text": "During IFTAR on medium haul flights, what is kept inside the trolley?",
+    "options": ["The main meal casseroles", "The hot beverages", "The drawer with dates and samosa/spring roll", "The trays"],
+    "correct": 2,
+    "explanation": "Keep the drawer with Dates and Samosa/Spring roll inside the trolley."
+  },
+  {
+    "id": 92,
+    "text": "During IFTAR on medium haul flights, what is placed on top of a casserole?",
+    "options": ["The dessert", "The salad", "The dates and samosa/spring roll", "A napkin"],
+    "correct": 2,
+    "explanation": "Place the dates and Samosa/Spring roll on top of a casserole and serve the hot meal tray with drinks."
+  },
+  {
+    "id": 93,
+    "text": "How are dates and samosa/spring rolls loaded in Economy class?",
+    "options": ["On a large platter", "In a single container", "Individually packed and in a drawer", "On the meal tray"],
+    "correct": 2,
+    "explanation": "EY class dates and samosa/spring rolls are loaded individually packed, and in a drawer."
+  },
+  {
+    "id": 94,
+    "text": "During LBM service, what is used to collect and clear trays?",
+    "options": ["A tray collection trolley with a large bin", "A plastic bag carried by hand", "A trolley with a small trash bag", "A lined drawer only"],
+    "correct": 2,
+    "explanation": "Collect and clear trays using trolley with small trash bag during LBM service."
+  },
+  {
+    "id": 95,
+    "text": "After LBM service, what should be done to the galley and service equipment?",
+    "options": ["Leave them for the next crew", "Lock them in the storage", "Clean them", "Report them as used"],
+    "correct": 2,
+    "explanation": "Clean galley and service equipment after LBM service."
+  },
+  {
+    "id": 96,
+    "text": "What is the correct way to handle a passenger who is nervous or frightened during the flight?",
+    "options": ["Ignore them to avoid encouraging fear", "Tell them to relax and watch a movie", "Offer a few words of comfort and an understanding attitude", "Ask them to change seats"],
+    "correct": 2,
+    "explanation": "A few words of comfort and an understanding attitude of cabin crews work wonders for passengers who are nervous, frightened, bored etc."
+  },
+  {
+    "id": 97,
+    "text": "What assistance should be offered to children regarding the IFE system?",
+    "options": ["Nothing, they should figure it out", "Only show them the volume control", "Assist them on how to use IFE options for kids", "Tell their parents to help them"],
+    "correct": 2,
+    "explanation": "Assist children on how to use IFE options for kids on board in B777, B-787 and Air Bus aircrafts."
+  },
+  {
+    "id": 98,
+    "text": "What type of greeting is considered formal, sincere and courteous?",
+    "options": ["A casual hello with a nod", "A quick wave from the galley", "A formal greeting with a bow at the waist", "A brief smile without words"],
+    "correct": 2,
+    "explanation": "Greetings shall be formal, sincere, and courteous, and as Ethiopian custom, it is customary to bow bending at the waist at first interaction and farewell."
+  },
+  {
+    "id": 99,
+    "text": "What should be done if a passenger is unable to serve themselves from the counter?",
+    "options": ["Ask another passenger to help them", "Tell them to wait until landing", "Serve them drinks at their seat", "Direct them to the galley"],
+    "correct": 2,
+    "explanation": "Cabin crew must ensure that passengers with infants/children, incapacitated, elderly, and those unable to serve themselves from the counter are served drinks at their seats."
+  },
+  {
+    "id": 100,
+    "text": "What is the correct procedure for serving a passenger who only wants drinks during the meal service?",
+    "options": ["Tell them to wait for the drink service", "Give them a meal tray anyway", "Serve their drink with a napkin", "Ask them to come to the galley"],
+    "correct": 2,
+    "explanation": "For passengers who only want drinks during meal service, ensure to serve their drink with a napkin."
+  }
+]
+    // 3. Short notes – HTML string (can contain any formatting)
+const SHORT_NOTES_HTML = `
+    <style>
+        .notes-content {
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.5;
+            color: #e2e8f0;
+            background: rgba(12, 18, 34, 0.75);
+            backdrop-filter: blur(4px);
+            padding: 0;
+            border: none;
+            box-shadow: none;
+            margin: 0;
+        }
+        .notes-content h3 {
+            font-size: 1.8rem;
+            border-left: 6px solid #c084fc;
+            padding-left: 1rem;
+            margin-top: 0;
+            margin-bottom: 1rem;
+            color: #f1f5f9;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff, #c084fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .notes-content h4 {
+            font-size: 1.4rem;
+            margin: 1.5rem 0 0.8rem 0;
+            color: #a78bfa;
+            display: inline-block;
+            border-bottom: 2px solid rgba(139, 92, 246, 0.5);
+            padding-bottom: 0.2rem;
+        }
+        .notes-content h5 {
+            font-size: 1.2rem;
+            margin: 1.5rem 0 0.6rem 0;
+            color: #c4b5fd;
+        }
+        /* Bigger H6 with numbers */
+        .notes-content h6 {
+            font-size: 1.3rem;
+            margin: 2rem 0 1rem 0;
+            color: #facc15;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-left: 4px solid #facc15;
+            padding-left: 0.8rem;
+            letter-spacing: 0.5px;
+        }
+        /* Numbering matches H6 text color */
+        .notes-content h6 .service-num {
+            color: #facc15; 
+            font-size: 1.4rem;
+            margin-right: 0.2rem;
+        }
+        .notes-content p {
+            margin: 0.8rem 0;
+            color: #cbd5e6;
+        }
+        .notes-content ul, .notes-content ol {
+            padding-left: 1.5rem;
+            margin: 0.8rem 0;
+        }
+        .notes-content li {
+            margin: 0.6rem 0;
+            color: #cbd5e6;
+            vertical-align: top; 
+        }
+        /* Standardize bullet markers for all lists */
+        .notes-content ul li::marker {
+            color: #c084fc;
+            font-size: 1em;
+        }
+        .notes-content ul ul li::marker {
+            color: #a78bfa;
+        }
+        .notes-content strong {
+            color: #facc15;
+            font-weight: 600;
+        }
+        .highlight {
+            background: rgba(59, 130, 246, 0.2);
+            backdrop-filter: blur(4px);
+            padding: 0.8rem 1rem;
+            border-radius: 1rem;
+            margin: 1rem 0;
+            border-left: 4px solid #3b82f6;
+        }
+        .tip {
+            background: rgba(245, 158, 11, 0.15);
+            backdrop-filter: blur(4px);
+            padding: 0.8rem 1rem;
+            border-radius: 1rem;
+            margin: 1rem 0;
+            border-left: 4px solid #f59e0b;
+        }
+        hr {
+            margin: 1.5rem 0;
+            border: 0;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(255,255,255,0.1), transparent);
+        }
+        
+        /* BEAUTIFUL INLINE CLICKABLE BUTTONS */
+        .notes-content details.inline-dropdown {
+            display: block;
+            width: 100%;
+            margin: 0.2rem 0;
+        }
+        .notes-content details.inline-dropdown summary {
+            display: inline-block;
+            vertical-align: middle;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(59, 130, 246, 0.1));
+            border: 1px solid rgba(192, 132, 252, 0.4);
+            border-radius: 0.5rem;
+            padding: 0.3rem 0.8rem;
+            font-weight: 500;
+            color: #c084fc;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            list-style: none;
+        }
+        .notes-content details.inline-dropdown summary::-webkit-details-marker {
+            display: none;
+        }
+        .notes-content details.inline-dropdown summary:hover {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.4), rgba(59, 130, 246, 0.2));
+            color: #fff;
+            box-shadow: 0 0 12px rgba(192, 132, 252, 0.4);
+            transform: translateY(-1px);
+        }
+        .notes-content details.inline-dropdown summary::after {
+            content: "➕";
+            font-size: 0.75rem;
+            margin-left: 0.6rem;
+            transition: transform 0.3s ease;
+            color: #a78bfa;
+        }
+        .notes-content details[open].inline-dropdown summary::after {
+            content: "➖";
+            color: #facc15;
+        }
+        .notes-content details.inline-dropdown summary:focus {
+            outline: none;
+        }
+        /* Dropdown Content Box */
+        .notes-content details.inline-dropdown .dropdown-body {
+            background: rgba(12, 18, 34, 0.95);
+            border: 1px solid rgba(192, 132, 252, 0.3);
+            border-radius: 0.6rem;
+            padding: 1rem 1.2rem;
+            margin-top: 0.8rem;
+            margin-bottom: 0.8rem;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+            animation: fadeIn 0.3s ease;
+        }
+        .notes-content details.inline-dropdown .dropdown-body ul {
+            margin: 0;
+            padding-left: 1.5rem; /* Match standard list padding */
+        }
+        .notes-content details.inline-dropdown .dropdown-body li {
+            margin: 0.4rem 0;
+            color: #cbd5e6;
+            /* Inherits standard list bullet styles */
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+
+    <div class="notes-content">
+        <h3>🍽️ CHAPTER 6: MAIN CABIN/ECONOMY CLASS SERVICE PROCEDURE<br><span style="font-size: 0.9rem; font-weight: normal;">Service Etiquette, Trolley Setups, and Meal Service by Flight Duration</span></h3>
+
+        <p>This chapter outlines the standards for delivering exceptional service in the Economy (EY) Class. It covers Ethiopian Airlines' welcoming etiquette, general service rules, and detailed step-by-step meal and drink service procedures based on the length of the flight. Crucially, it specifies the exact setup for drink trolleys tailored to different service types.</p>
+
+        <h4>🤝 General Etiquette & Welcoming Procedures</h4>
+        <ul>
+            <li><strong>Greeting:</strong> Welcome customers with a smile. Greetings must be formal, sincere, and courteous. It is customary to bow at the waist at first interaction and farewell (avoid casual nods).</li>
+            <li><strong>Boarding:</strong> EY boarding is zonal; one crew member is accountable for prompt and effective delivery by position.</li>
+            <li><strong>VIPs & Frequent Flyers:</strong> Star Alliance elite members in main cabin do not get C-9 service but must be given utmost attention. VIPs get priority during meal choice and must be addressed by title and name.</li>
+            <li><strong>Special Attention:</strong> Be vigilant and assist elderly people, PRMs (Persons with Reduced Mobility), first riders, and children. Give children's giveaway kits ASAP and assist with IFE options.</li>
+            <li><strong>Posture & Communication:</strong> Maintain eye contact, use full sentences, and move gracefully. <strong>Never</strong> lean on passenger seats or sit on armrests while passengers are on board.</li>
+            <li><strong>Service Flow:</strong> EY service flow direction must start from FWD to AFT throughout the cabin. Meal trolleys must be loaded evenly by all galleys. Trays must never be distributed without drinks.</li>
+        </ul>
+
+        <h4>🥂 Drink Serving Etiquette</h4>
+        <ul>
+            <li>Drink service is done using a trolley. Requests are prepared on the trolley top in front of passengers.</li>
+            <li>Always offer ice first (using ice tongs) before pouring the drink.</li>
+            <li>Canned drinks must be poured into a tumbler unless the passenger insists otherwise. Wine bottles should be opened and poured into a tumbler.</li>
+            <li>Always use the right hand to pour and serve (unless left-handed).</li>
+            <li>For mixed long drinks, present a stirring rod. Always serve drinks with a napkin.</li>
+            <li>On flights over 5 hours, if there is only one service, a full drink trolley must be passed before arrival. All services must be completed 30 minutes before landing.</li>
+            <li>On medium/long-haul flights, after service, go around the cabin every 20 minutes with assorted drinks.</li>
+        </ul>
+
+        <hr>
+
+        <h4>⏱️ Meal Service Procedures Classified by Flight Hours</h4>
+
+        <h5>1. Short Haul Flights: Domestic & Regional (Less than 1.15 flying hours)</h5>
+        <ul>
+            <li><strong>Process:</strong> Start from the 1st row of EY class (Service starts from FWD and MID; on Q-400, only FWD).</li>
+            <li><strong>Service:</strong> Offer drinks (Soft drink, Juice, Water, Coffee/Tea). Serve Sandwich (SDw) or fruit cake with a napkin. Serve hot beverages on request on early morning flights.</li>
+            <li><strong>Cleanup:</strong> Collect used items using trash collecting plastic bags (use gloves).</li>
+        </ul>
+
+        <h5>2. Short Haul Flights (1.15 – 3 flying hours)</h5>
+        <ul>
+            <li><strong>Process:</strong> Promote and sell Wi-Fi connectivity if available.</li>
+            <li><strong>Service:</strong> Serve Hot Light Meal (HLM) trays with drinks and hot beverages using a trolley.</li>
+            <li><strong>Cleanup:</strong> Collect trays using a trolley. Clean cabin using trash bag/lined drawer (use gloves).</li>
+        </ul>
+
+        <h5>3. Medium/Long Haul Flights (Above 3:01 hrs)</h5>
+
+        <h6><span class="service-num">1.</span> 🍳 Full/Continental Breakfast (FBF/CBF)</h6>
+        <ul>
+            <li>Promote and sell Wi-Fi connectivity if available.</li>
+            <li>
+                <details class="inline-dropdown">
+                    <summary>Serve meal, juice, and/or hot beverage using a trolley.</summary>
+                    <div class="dropdown-body">
+                        <ul>
+                            <li><strong>Top Drawer 1 (Closest to Cabin Crew / Front):</strong>
+                                <ul>
+                                    <li>Assorted juice</li>
+                                    <li>Milk</li>
+                                    <li>Water</li>
+                                    <li>Lemon slice with swizzle stick</li>
+                                    <li>Salt and pepper in a tumbler</li>
+                                    <li>Tumbler</li>
+                                    <li>Napkin</li>
+                                    <li>Stirring rod inside the ice bucket</li>
+                                </ul>
+                            </li>
+                            <li><strong>Top Drawer 2 (Furthest from Cabin Crew / Back):</strong>
+                                <ul>
+                                    <li>Coffee and tea in thermos flask</li>
+                                    <li>Paper cup</li>
+                                </ul>
+                            </li>
+                            <li><strong>Insert Trays (Inside Top Drawers):</strong>
+                                <ul>
+                                    <li>Sugar</li>
+                                    <li>Sweetener</li>
+                                    <li>Creamer</li>
+                                    <li>Lemon</li>
+                                    <li>Napkin</li>
+                                </ul>
+                            </li>
+                            <li><strong>Note:</strong> Soft drinks, mixes, and alcoholic drinks must be carried inside the bottom drawer so specific requests are entertained.</li>
+                        </ul>
+                    </div>
+                </details>
+            </li>
+            <li>
+                <details class="inline-dropdown">
+                    <summary>Serve second coffee/tea while collecting used trays using a trolley.</summary>
+                    <div class="dropdown-body">
+                        <ul>
+                            <li>Clean drawer lined with paper towel</li>
+                            <li>Coffee and tea in thermos flask</li>
+                            <li>Paper cup</li>
+                            <li>Water</li>
+                            <li>Tumblers</li>
+                        </ul>
+                    </div>
+                </details>
+            </li>
+            <li>Check cabin and collect remaining trash.</li>
+        </ul>
+
+        <h6><span class="service-num">2.</span> 🍲 Hot Light Meal (HLM) – Day Flight</h6>
+        <ul>
+            <li>Promote and sell Wi-Fi connectivity if available.</li>
+            <li>
+                <details class="inline-dropdown">
+                    <summary>Serve HLM trays with drinks on top of a trolley.</summary>
+                    <div class="dropdown-body">
+                        <ul>
+                            <li><strong>Top Drawer 1 (Closest to Cabin Crew / Front):</strong>
+                                <ul>
+                                    <li>Assorted juice</li>
+                                    <li>Water</li>
+                                    <li>Mixes</li>
+                                    <li>Soft drinks</li>
+                                    <li>Wine</li>
+                                    <li>Beer</li>
+                                </ul>
+                                <em>(One of each juice/soft drink placed on top for easy choice. Cover drawer with paper towel before setting drinks.)</em>
+                            </li>
+                            <li><strong>Top Drawer 2 (Furthest from Cabin Crew / Back):</strong>
+                                <ul>
+                                    <li>Ice bucket filled with ice</li>
+                                    <li>Lemon slice with swizzle stick</li>
+                                    <li>Salt/pepper in a tumbler</li>
+                                    <li>Tumblers</li>
+                                    <li>Napkin</li>
+                                    <li>Stirring rod</li>
+                                </ul>
+                            </li>
+                            <li><strong>Bottom Drawer (Inside Trolley Body):</strong>
+                                <ul>
+                                    <li>Extra juice</li>
+                                    <li>Soft drinks</li>
+                                    <li>Water</li>
+                                    <li>Mixes</li>
+                                    <li>Chilled beer</li>
+                                    <li>White wine</li>
+                                </ul>
+                            </li>
+                            <li><strong>Cocktail Biscuits:</strong> Prepared in drawers with napkin (served on flights >3 hrs).</li>
+                        </ul>
+                    </div>
+                </details>
+            </li>
+            <li>
+                <details class="inline-dropdown">
+                    <summary>Serve second drinks along with hot beverages on top of a trolley.</summary>
+                    <div class="dropdown-body">
+                        <ul>
+                            <li>Cold and 1st hot beverages on top of trolley</li>
+                            <li><strong>Top Drawer 1:</strong> Assorted cold beverages</li>
+                            <li><strong>Top Drawer 2:</strong> Coffee and tea in thermos flask</li>
+                            <li><strong>Insert Trays:</strong> Sugar, sweetener, creamer, lemon, paper cup, plastic spoon</li>
+                            <li><strong>Bottom Drawer (Inside Trolley Body):</strong> Chilled beer and white wine</li>
+                            <li><strong>Note:</strong> Extra drinks must be kept inside the bottom drawer.</li>
+                        </ul>
+                    </div>
+                </details>
+            </li>
+            <li>Serve second hot beverages.</li>
+            <li>Collect tray and used service items using trolley with tray collection trolley set up.</li>
+            <li>Check cabin collect trashes using trash bag/ lined drawer (use gloves).</li>
+        </ul>
+
+        <h6><span class="service-num">3.</span> 🌙 Hot Light Meal (HLM) – Night Flight</h6>
+        <ul>
+            <li>Promote and sell Wi-Fi connectivity if available.</li>
+            <li>
+                <details class="inline-dropdown">
+                    <summary>Serve HLM trays with drinks on top of a trolley.</summary>
+                    <div class="dropdown-body">
+                        <ul>
+                            <li><strong>Top Drawer 1 (Closest to Cabin Crew / Front):</strong>
+                                <ul>
+                                    <li>Assorted juice</li>
+                                    <li>Water</li>
+                                    <li>Mixes</li>
+                                    <li>Soft drinks</li>
+                                    <li>Wine</li>
+                                    <li>Beer</li>
+                                </ul>
+                            </li>
+                            <li><strong>Top Drawer 2 (Furthest from Cabin Crew / Back):</strong>
+                                <ul>
+                                    <li>Ice bucket filled with ice</li>
+                                    <li>Lemon slice with swizzle stick</li>
+                                    <li>Salt/pepper in a tumbler</li>
+                                    <li>Tumblers</li>
+                                    <li>Napkin</li>
+                                    <li>Stirring rod</li>
+                                </ul>
+                            </li>
+                            <li><strong>Bottom Drawer (Inside Trolley Body):</strong>
+                                <ul>
+                                    <li>Extra juice</li>
+                                    <li>Soft drinks</li>
+                                    <li>Water</li>
+                                    <li>Mixes</li>
+                                    <li>Chilled beer</li>
+                                    <li>White wine</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </details>
+            </li>
+            <li>
+                <details class="inline-dropdown">
+                    <summary>Serve hot beverages on top of a trolley.</summary>
+                    <div class="dropdown-body">
+                        <ul>
+                            <li>Clean drawer lined with paper towel</li>
+                            <li>Coffee and tea in thermos flask</li>
+                            <li>Paper cup</li>
+                            <li>Water</li>
+                            <li>Tumblers</li>
+                        </ul>
+                    </div>
+                </details>
+            </li>
+            <li>Collect tray and used service items using trolley with tray collection trolley set up.</li>
+            <li>Ensure additional drink requests are attended to immediately after trays are collected.</li>
+            <li>Clear service items from cabin using trash bag/ lined drawer (use gloves).</li>
+        </ul>
+
+        <h6><span class="service-num">4.</span> 🥪 Lunch with Sandwich Service (Early Morning Flights)</h6>
+        <ul>
+            <li>Promote and sell Wi-Fi connectivity if available.</li>
+            <li>
+                <details class="inline-dropdown">
+                    <summary>Serve first drink and hot beverages with sandwich.</summary>
+                    <div class="dropdown-body">
+                        <ul>
+                            <li><strong>Top Drawer 1 (Closest to Cabin Crew / Front):</strong>
+                                <ul>
+                                    <li>Juices</li>
+                                    <li>Water</li>
+                                </ul>
+                            </li>
+                            <li><strong>Top Drawer 2 (Furthest from Cabin Crew / Back):</strong>
+                                <ul>
+                                    <li>Hot beverages</li>
+                                </ul>
+                            </li>
+                            <li><strong>Bottom Drawer (Inside Trolley Body):</strong>
+                                <ul>
+                                    <li>Soft drinks</li>
+                                    <li>Alcoholic drinks</li>
+                                </ul>
+                            </li>
+                            <li><strong>SDw:</strong> Placed inside trolley with napkin</li>
+                        </ul>
+                    </div>
+                </details>
+            </li>
+            <li>Collect used items using trash collecting bag/drawer.</li>
+            <li>Pass Duty Free trolley.</li>
+            <li>
+                <details class="inline-dropdown">
+                    <summary>Serve meal (LCH) together with second drink on top of trolley.</summary>
+                    <div class="dropdown-body">
+                        <ul>
+                            <li><strong>Second drinks:</strong> Served with hot/non-alcohol/alcohol drinks (soft drinks, juices, water, beer, wine)</li>
+                            <li><strong>Bottom Drawer (Inside Trolley Body):</strong> Chilled beer and white wine</li>
+                        </ul>
+                    </div>
+                </details>
+            </li>
+            <li>Pass Coffee and Tea with trolley as per the setup.</li>
+            <li>Collect tray and used service items using trolley with tray collection trolley set up.</li>
+            <li>Collect left behind items from cabin with plastic bags (use gloves).</li>
+        </ul>
+
+        <h6><span class="service-num">5.</span> 🍱 Lunch (LCH) with Cocktail Crackers</h6>
+        <ul>
+            <li>Promote and sell Wi-Fi connectivity if available.</li>
+            <li>
+                <details class="inline-dropdown">
+                    <summary>Serve first drink per the setup with cocktail biscuit.</summary>
+                    <div class="dropdown-body">
+                        <ul>
+                            <li><strong>Top Drawer 1 (Closest to Cabin Crew / Front):</strong>
+                                <ul>
+                                    <li>Assorted juice</li>
+                                    <li>Water</li>
+                                    <li>Mixes</li>
+                                    <li>Soft drinks</li>
+                                    <li>Wine</li>
+                                    <li>Beer</li>
+                                </ul>
+                            </li>
+                            <li><strong>Top Drawer 2 (Furthest from Cabin Crew / Back):</strong>
+                                <ul>
+                                    <li>Ice bucket</li>
+                                    <li>Lemon</li>
+                                    <li>Salt/pepper</li>
+                                    <li>Tumblers</li>
+                                    <li>Napkins</li>
+                                    <li>Stirring rod</li>
+                                </ul>
+                            </li>
+                            <li><strong>Cocktail Biscuits:</strong> Prepared in drawers with napkin.</li>
+                        </ul>
+                    </div>
+                </details>
+            </li>
+            <li>Collect used items using drawer or trash collecting bag.</li>
+            <li>
+                <details class="inline-dropdown">
+                    <summary>Serve meal together with second drink on top of trolley.</summary>
+                    <div class="dropdown-body">
+                        <ul>
+                            <li><strong>Second drinks:</strong> Served with hot/non-alcohol/alcohol drinks (soft drinks, juices, water, beer, wine)</li>
+                            <li><strong>Bottom Drawer (Inside Trolley Body):</strong> Chilled beer and white wine</li>
+                        </ul>
+                    </div>
+                </details>
+            </li>
+            <li>Pass first Coffee and Tea with trolley.</li>
+            <li>Serve second Coffee/Tea with trolley.</li>
+            <li>Collect tray and used service items using trolley with tray collection trolley set up.</li>
+            <li>Collect left behind items from the cabin with plastic bags/lined drawer (use gloves).</li>
+        </ul>
+
+        <h6><span class="service-num">6.</span> 🍽️ Dinner (DNR) – Flights Departing Before 21:00</h6>
+        <ul>
+            <li>Promote and sell Wi-Fi connectivity if available.</li>
+            <li>
+                <details class="inline-dropdown">
+                    <summary>Prepare drink trolley and serve drinks with Cocktail biscuits.</summary>
+                    <div class="dropdown-body">
+                        <ul>
+                            <li><strong>Top Drawer 1 (Closest to Cabin Crew / Front):</strong>
+                                <ul>
+                                    <li>Assorted juice</li>
+                                    <li>Water</li>
+                                    <li>Mixes</li>
+                                    <li>Soft drinks</li>
+                                    <li>Wine</li>
+                                    <li>Beer</li>
+                                </ul>
+                            </li>
+                            <li><strong>Top Drawer 2 (Furthest from Cabin Crew / Back):</strong>
+                                <ul>
+                                    <li>Ice bucket</li>
+                                    <li>Lemon</li>
+                                    <li>Salt/pepper</li>
+                                    <li>Tumblers</li>
+                                    <li>Napkins</li>
+                                    <li>Stirring rod</li>
+                                </ul>
+                            </li>
+                            <li><strong>Cocktail Biscuits:</strong> Prepared in drawers with napkin.</li>
+                        </ul>
+                    </div>
+                </details>
+            </li>
+            <li>Collect trash by trash collecting bag/lined drawer.</li>
+            <li>
+                <details class="inline-dropdown">
+                    <summary>Serve DNR trays with 2nd drinks on top of a trolley (give priority to children).</summary>
+                    <div class="dropdown-body">
+                        <ul>
+                            <li><strong>Second drinks:</strong> Served with hot/non-alcohol/alcohol drinks (soft drinks, juices, water, beer, wine)</li>
+                            <li><strong>Bottom Drawer (Inside Trolley Body):</strong> Chilled beer and white wine</li>
+                        </ul>
+                    </div>
+                </details>
+            </li>
+            <li>Pass first Coffee and Tea with trolley.</li>
+            <li>Serve second Coffee/Tea with trolley.</li>
+            <li>Collect tray and used service items using trolley with tray collection trolley set up.</li>
+            <li>Clean cabin using trash bag/lined drawer (use gloves).</li>
+        </ul>
+
+        <h6><span class="service-num">7.</span> 🌃 Dinner (DNR) – Flights Departing After 21:00</h6>
+        <ul>
+            <li>Promote and sell Wi-Fi connectivity if available.</li>
+            <li>
+                <details class="inline-dropdown">
+                    <summary>Prepare drink trolley and serve drinks with meal.</summary>
+                    <div class="dropdown-body">
+                        <ul>
+                            <li><strong>Top Drawer 1 (Closest to Cabin Crew / Front):</strong>
+                                <ul>
+                                    <li>Assorted juice</li>
+                                    <li>Water</li>
+                                    <li>Mixes</li>
+                                    <li>Soft drinks</li>
+                                    <li>Wine</li>
+                                    <li>Beer</li>
+                                </ul>
+                            </li>
+                            <li><strong>Top Drawer 2 (Furthest from Cabin Crew / Back):</strong>
+                                <ul>
+                                    <li>Ice bucket</li>
+                                    <li>Lemon</li>
+                                    <li>Salt/pepper</li>
+                                    <li>Tumblers</li>
+                                    <li>Napkins</li>
+                                    <li>Stirring rod</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </details>
+            </li>
+            <li>
+                <details class="inline-dropdown">
+                    <summary>Serve 2nd drinks with hot beverages on top of a trolley.</summary>
+                    <div class="dropdown-body">
+                        <ul>
+                            <li><strong>Second drinks:</strong> Served with hot/non-alcohol/alcohol drinks (soft drinks, juices, water, beer, wine)</li>
+                            <li><strong>Bottom Drawer (Inside Trolley Body):</strong> Chilled beer and white wine</li>
+                            <li><strong>Note:</strong> Extra drinks must be kept inside the bottom drawer.</li>
+                        </ul>
+                    </div>
+                </details>
+            </li>
+            <li>Collect tray and used service items using trolley with tray collection trolley set up.</li>
+            <li>Clean cabin using trash bag/lined drawer (use gloves).</li>
+        </ul>
+
+        <h6><span class="service-num">8.</span> 🥖 Rich Sandwich (RSDW)</h6>
+        <ul>
+            <li>
+                <details class="inline-dropdown">
+                    <summary>Prepare drink and hot beverages on top of the RSDW trolley.</summary>
+                    <div class="dropdown-body">
+                        <ul>
+                            <li><strong>Trolley Top:</strong> Assorted drinks and hot beverages</li>
+                            <li><strong>Bottom Drawer (Inside Trolley Body):</strong> Put mixed soft drinks in a drawer inside the RSDW trolley</li>
+                        </ul>
+                    </div>
+                </details>
+            </li>
+            <li>
+                <details class="inline-dropdown">
+                    <summary>Serve RSDW trays with drinks and hot beverages on top of a trolley.</summary>
+                    <div class="dropdown-body">
+                        <ul>
+                            <li>Distribute trays with drinks and hot beverages.</li>
+                        </ul>
+                    </div>
+                </details>
+            </li>
+            <li>Collect tray and used service items using trolley with tray collection trolley set up.</li>
+            <li>Clear service items from cabin using trash bag (use gloves).</li>
+        </ul>
+
+        <h6><span class="service-num">9.</span> ☀️ Eye Opener</h6>
+        <ul>
+            <li>
+                <details class="inline-dropdown">
+                    <summary>Prepare drinks trolley with tea and coffee, assorted juice on top.</summary>
+                    <div class="dropdown-body">
+                        <ul>
+                            <li><strong>Trolley Top:</strong> Tea, coffee, and assorted juice</li>
+                            <li><strong>Bottom Drawer (Inside Trolley Body):</strong> Soft drinks, mixes, and alcoholic drinks carried inside the trolley so specific requests are entertained</li>
+                        </ul>
+                    </div>
+                </details>
+            </li>
+            <li>Place bulk fruit cake/muffin inside drinks trolley with napkin.</li>
+            <li>Serve drink and bulk fruit cake/muffin with napkin.</li>
+            <li>Collect left behind items from the cabin with plastic bags (use gloves).</li>
+        </ul>
+
+        <h6><span class="service-num">10.</span> 🌏 Special Services: Far East & IFTAR</h6>
+        <ul>
+            <li><strong>Refreshment Counter (Far East):</strong> Set up on galley surface (clean drawer lined with napkin) with non-alcoholic drinks and ice. Tumblers/napkins on a snack tray. No hot beverages. Noodles placed on a drawer with drinks on top of the galley. TL announces availability. Stow during turbulence.</li>
+            <li><strong>IFTAR Meal (Short Haul <3 hrs):</strong> Note seat numbers of fasting passengers. Distribute snack box with water in trolley. Collect while serving hot beverages.</li>
+            <li><strong>IFTAR Meal (Medium/Long Haul >3 hrs):</strong> Note seat numbers during cocktail biscuits service. Warm meal, prepare drinks, and arrange dates and individually packed Samosa/Spring roll in a drawer. Load casseroles and place dates/samosa on top. Serve hot meal tray with drinks. (For departures after 19:00, serve dates/samosa on request).</li>
+        </ul>
+
+        <h6><span class="service-num">11.</span> 🌙 LBM (Light Bite Meal) – Outbound Europe after Midnight (including ARN & DME)</h6>
+        <ul>
+            <li>Promote and sell Wi-Fi connectivity if available.</li>
+            <li>
+                <details class="inline-dropdown">
+                    <summary>Prepare drinks along with tea and coffee on top of the trolley.</summary>
+                    <div class="dropdown-body">
+                        <ul>
+                            <li>Tea, coffee, and drinks prepared on top of the trolley.</li>
+                        </ul>
+                    </div>
+                </details>
+            </li>
+            <li>
+                <details class="inline-dropdown">
+                    <summary>Serve drink and LBM with the tray of salad, focaccia, and dessert along with tea/coffee.</summary>
+                    <div class="dropdown-body">
+                        <ul>
+                            <li>Distribute LBM trays containing salad, focaccia, and dessert, along with the drinks and tea/coffee.</li>
+                        </ul>
+                    </div>
+                </details>
+            </li>
+            <li>Collect and clear trays using trolley with small trash bag.</li>
+            <li>Clean galley and service equipment.</li>
+            <li>Attend (clean and replenish) Lavatories.</li>
+        </ul>
+
+        <hr>
+
+        <h4>📦 Tray Collection Trolley Setup</h4>
+        <ul>
+            <li>Place two clean drawers covered with a small plastic bag on top of the trolley.</li>
+        </ul>
+
+        <div class="tip">
+            <p><strong>💡 Crucial Reminders:</strong> Always wash hands before handling food. Check ovens for foreign objects before heating. Heat meals to the right temperature using the Meal Heating Guideline. Service starts from the window seat, but female passengers get priority. Awaken passengers for main meals only, being careful with deep sleepers. Avoid frequent touching/rearranging of items once the tray is set. Always ask permission before picking up a passenger's tray. Keep voice low if PAX are on board.</p>
+        </div>
+    </div>
+`;
+    // ===================== END CONFIGURATION =====================
+
+    // Helper
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    }
+
+    // ---------- QUIZ ENGINE (works with any QUESTIONS_DATA) ----------
+    let questions = [];
+    let currentIndex = 0;
+    let userAnswers = [];
+    let answerLocked = false;
+    let autoTimer = null;
+    let quizInitialized = false;
+    let quizDynamicDiv = null; // will hold the #quizContent element
+
+    const STORAGE_KEY = "custom_quiz_m6_progress";
+    const CORRECT_SEQ_KEY = "custom_quiz_m6_correct_seq";
+
+    // Generate balanced random sequence (equal distribution of 0-3, no consecutive repeats)
+    function generateBalancedRandomSequence(total) {
+        const perOption = Math.floor(total / 4);
+        let remainder = total % 4;
+        let counts = [perOption, perOption, perOption, perOption];
+        for (let i = 0; i < remainder; i++) counts[i]++;
+        let seq = [];
+        let prev = -1;
+        for (let i = 0; i < total; i++) {
+            let available = [];
+            for (let c = 0; c < 4; c++) {
+                if (counts[c] > 0 && c !== prev) available.push(c);
+            }
+            if (available.length === 0) {
+                for (let c = 0; c < 4; c++) {
+                    if (counts[c] > 0) available.push(c);
+                }
+            }
+            let randomIndex = Math.floor(Math.random() * available.length);
+            let chosen = available[randomIndex];
+            seq.push(chosen);
+            counts[chosen]--;
+            prev = chosen;
+        }
+        return seq;
+    }
+
+    // Reorder options so correct answer appears at sequence position
+    function reorderQuestionsWithBalancedRandom(questionsArray) {
+        const total = questionsArray.length;
+        const storedSeq = localStorage.getItem(CORRECT_SEQ_KEY);
+        let finalSeq;
+        if (storedSeq) {
+            finalSeq = JSON.parse(storedSeq);
+        } else {
+            finalSeq = generateBalancedRandomSequence(total);
+            localStorage.setItem(CORRECT_SEQ_KEY, JSON.stringify(finalSeq));
+        }
+        for (let i = 0; i < questionsArray.length; i++) {
+            const q = questionsArray[i];
+            const originalCorrectIdx = q.correct;
+            const correctText = q.options[originalCorrectIdx];
+            const targetPos = finalSeq[i];
+            const otherOptions = q.options.filter((_, idx) => idx !== originalCorrectIdx);
+            const newOptions = new Array(4);
+            newOptions[targetPos] = correctText;
+            let otherIdx = 0;
+            for (let j = 0; j < 4; j++) {
+                if (j === targetPos) continue;
+                newOptions[j] = otherOptions[otherIdx++];
+            }
+            q.options = newOptions;
+            q.correct = targetPos;
+        }
+        return questionsArray;
+    }
+
+    function saveProgress() {
+        const state = { currentIndex, userAnswers };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    }
+
+    function loadProgress() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (!saved) return false;
+        try {
+            const state = JSON.parse(saved);
+            if (state.userAnswers && state.userAnswers.length === questions.length) {
+                currentIndex = state.currentIndex;
+                userAnswers = state.userAnswers;
+                return true;
+            }
+        } catch(e) {}
+        return false;
+    }
+
+    function hasProgress() {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (!saved) return false;
+        try {
+            const state = JSON.parse(saved);
+            return state.userAnswers && state.userAnswers.some(a => a !== null);
+        } catch(e) { return false; }
+    }
+
+    function resetQuiz() {
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(CORRECT_SEQ_KEY);
+        // Reinitialize with fresh balanced sequence
+        const rawCopy = JSON.parse(JSON.stringify(QUESTIONS_DATA));
+        questions = reorderQuestionsWithBalancedRandom(rawCopy);
+        userAnswers = new Array(questions.length).fill(null);
+        currentIndex = 0;
+        answerLocked = false;
+        saveProgress();
+    }
+
+    // ---------- RENDERING FUNCTIONS ----------
+    function renderLanding() {
+        document.getElementById("appRoot").innerHTML = `
+            <div class="quiz-header">
+                <div class="badge-row">
+                    <a href="index.html" class="module-link-btn" style="padding: 5px 14px; font-size: 0.8rem; border-radius: 40px; margin-right: 8px;">🏠 Modules</a>
+                    <div class="title">${escapeHtml(SUBJECT_NAME)} </div>
+                </div>
+            </div>
+            <div class="landing">
+                <h2>📖 Welcome</h2>
+                <p>Test your knowledge or read the short notes</p>
+                <div class="button-group">
+                    <div class="big-btn" id="takeQuizBtn">📝 Take Quiz</div>
+                    <div class="big-btn" id="readNotesBtn">📘 Read Short Notes</div>
+                    <a href="index.html" class="module-link-btn">🏠 Back to Modules</a>
+                </div>
+            </div>
+            <footer>📚 Based on course material</footer>
+        `;
+        document.getElementById("takeQuizBtn").onclick = () => startQuiz();
+        document.getElementById("readNotesBtn").onclick = () => showNotes('landing');
+    }
+
+    function renderResume() {
+        document.getElementById("appRoot").innerHTML = `
+            <div class="quiz-header">
+                <div class="badge-row">
+                    <a href="index.html" class="module-link-btn" style="padding: 5px 14px; font-size: 0.8rem; border-radius: 40px; margin-right: 8px;">🏠 Modules</a>
+                    <div class="title">${escapeHtml(SUBJECT_NAME)} </div>
+                </div>
+            </div>
+            <div class="resume-screen">
+                <h2>🔄 Resume Quiz</h2>
+                <p>You have an unfinished quiz. Continue where you left off or start over.</p>
+                <div class="button-group">
+                    <div class="big-btn" id="restartQuizBtn">🔄 Restart Quiz</div>
+                    <div class="big-btn" id="continueQuizBtn">▶ Continue Quiz</div>
+                    <div class="big-btn" id="resumeNotesBtn">📘 Read Short Notes</div>
+                    <a href="index.html" class="module-link-btn">🏠 Back to Modules</a>
+                </div>
+            </div>
+            <footer>📚 Based on course material</footer>
+        `;
+        document.getElementById("restartQuizBtn").onclick = () => { resetQuiz(); startQuiz(); };
+        document.getElementById("continueQuizBtn").onclick = () => startQuiz(true);
+        document.getElementById("resumeNotesBtn").onclick = () => showNotes('resume');
+    }
+
+    function startQuiz(keepProgress = false) {
+        if (!quizInitialized) {
+            const rawCopy = JSON.parse(JSON.stringify(QUESTIONS_DATA));
+            questions = reorderQuestionsWithBalancedRandom(rawCopy);
+            userAnswers = new Array(questions.length).fill(null);
+            currentIndex = 0;
+            quizInitialized = true;
+        }
+        if (keepProgress) {
+            loadProgress();
+        } else {
+            userAnswers.fill(null);
+            currentIndex = 0;
+            saveProgress();
+        }
+        renderQuiz();
+    }
+
+    function renderQuiz() {
+        const appRoot = document.getElementById("appRoot");
+        appRoot.innerHTML = `
+            <div class="quiz-header">
+                <div class="badge-row">
+                    <div class="title" id="dynamicTitle">Question ${currentIndex+1}</div>
+                    <div class="stats-panel">
+                        <span class="question-counter" id="counterLabel">${userAnswers.filter(a=>a!==null).length} / ${questions.length}</span>
+                    </div>
+                </div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="progressFill" style="width: ${(userAnswers.filter(a=>a!==null).length/questions.length)*100}%"></div>
+                </div>
+            </div>
+            <div id="quizContent"></div>
+            <div class="notes-button-wrapper">
+                <div class="notes-button" id="notesFromQuizBtn">📘 Read Short Notes</div>
+            </div>
+            <footer>📚 Based on course material</footer>
+        `;
+        // Get reference to quiz content container
+        quizDynamicDiv = document.getElementById("quizContent");
+        renderCurrentQuestion();
+        // Attach notes button event
+        document.getElementById("notesFromQuizBtn").onclick = () => showNotes('quiz');
+    }
+
+    function updateStats() {
+  const correctCount = userAnswers.reduce((count, ans, idx) => count + (ans !== null && ans === questions[idx].correct ? 1 : 0), 0);
+  const percent = (correctCount / questions.length) * 100;
+  const fill = document.getElementById("progressFill");
+  const counter = document.getElementById("counterLabel");
+  if (fill) fill.style.width = `${percent}%`;
+  if (counter) counter.innerText = `${correctCount} / ${questions.length}`;
+  const titleDiv = document.getElementById("dynamicTitle");
+  if (titleDiv) titleDiv.textContent = `Question ${currentIndex+1}`;
+}
+
+    function clearTimer() { if (autoTimer) { clearTimeout(autoTimer); autoTimer = null; } }
+
+    function selectAnswer(selectedIdx) {
+        if (answerLocked) return;
+        const q = questions[currentIndex];
+        const isCorrect = (selectedIdx === q.correct);
+        userAnswers[currentIndex] = selectedIdx;
+        updateStats();
+        answerLocked = true;
+        saveProgress();
+        renderFeedback(selectedIdx, isCorrect);
+        if (isCorrect) {
+            autoTimer = setTimeout(() => {
+                if (currentIndex < questions.length - 1) {
+                    currentIndex++;
+                    answerLocked = false;
+                    clearTimer();
+                    renderCurrentQuestion();
+                    saveProgress();
+                } else {
+                    if (userAnswers.every(a => a !== null)) renderResults();
+                    else renderCurrentQuestion();
+                    saveProgress();
+                }
+            }, 1100);
+        }
+    }
+
+    function renderFeedback(selectedIdx, isCorrect) {
+        const q = questions[currentIndex];
+        const letters = ["A","B","C","D"];
+        let optionsHtml = "";
+        q.options.forEach((opt, idx) => {
+            let extraClass = "";
+            if (idx === q.correct) extraClass = "correct-highlight";
+            else if (idx === selectedIdx && !isCorrect) extraClass = "wrong-highlight";
+            optionsHtml += `
+                <div class="option disabled-opt ${extraClass}">
+                    <div class="option-prefix">${letters[idx]}</div>
+                    <div class="option-text">${escapeHtml(opt)}</div>
+                </div>
+            `;
+        });
+        const correctLetter = letters[q.correct];
+        const feedbackHtml = isCorrect ?
+            `<div class="feedback-panel feedback-correct"><div class="feedback-title correct-title">✓ CORRECT</div><div class="feedback-text">${escapeHtml(q.explanation)}</div></div>` :
+            `<div class="feedback-panel feedback-wrong"><div class="feedback-title wrong-title">✗ INCORRECT</div><div class="feedback-text"><strong>Correct answer: ${correctLetter}. ${escapeHtml(q.options[q.correct])}</strong><br>${escapeHtml(q.explanation)}</div></div>`;
+        const navHtml = `
+            <div class="nav-buttons">
+                <div class="btn btn-outline" id="navPrev">◀ Previous</div>
+                <div class="btn btn-primary" id="navNext">${currentIndex === questions.length-1 ? "Finish" : "Next ▶"}</div>
+            </div>
+        `;
+        quizDynamicDiv.innerHTML = `<div class="quiz-card"><div class="question-text">${escapeHtml(q.text)}</div><div class="options-grid">${optionsHtml}</div>${feedbackHtml}${navHtml}</div>`;
+        document.getElementById("navPrev")?.addEventListener("click", () => {
+            if (currentIndex > 0) {
+                clearTimer(); currentIndex--; answerLocked = false; renderCurrentQuestion(); saveProgress();
+            }
+        });
+        const nextBtn = document.getElementById("navNext");
+        if (nextBtn) {
+            nextBtn.addEventListener("click", () => {
+                if (currentIndex < questions.length-1) {
+                    clearTimer(); currentIndex++; answerLocked = false; renderCurrentQuestion(); saveProgress();
+                } else {
+                    renderResults();
+                }
+            });
+        }
+        updateStats();
+    }
+
+    function renderCurrentQuestion() {
+        clearTimer();
+        if (userAnswers[currentIndex] !== null) {
+            const saved = userAnswers[currentIndex];
+            const isCor = (saved === questions[currentIndex].correct);
+            renderFeedback(saved, isCor);
+            return;
+        }
+        answerLocked = false;
+        const q = questions[currentIndex];
+        const letters = ["A","B","C","D"];
+        let optsHtml = "";
+        q.options.forEach((opt, idx) => {
+            optsHtml += `<div class="option" data-opt="${idx}"><div class="option-prefix">${letters[idx]}</div><div class="option-text">${escapeHtml(opt)}</div></div>`;
+        });
+        const navHtml = `<div class="nav-buttons"><div class="btn btn-outline" id="prevClean">◀ Previous</div><div class="btn btn-primary" id="nextClean">${currentIndex === questions.length-1 ? "Finish" : "Next ▶"}</div></div>`;
+        quizDynamicDiv.innerHTML = `<div class="quiz-card"><div class="question-text">${escapeHtml(q.text)}</div><div class="options-grid" id="optGrid">${optsHtml}</div>${navHtml}</div>`;
+        document.querySelectorAll(".option").forEach(opt => {
+            opt.addEventListener("click", (e) => {
+                const idx = parseInt(opt.dataset.opt);
+                selectAnswer(idx);
+            });
+        });
+        document.getElementById("prevClean")?.addEventListener("click", () => {
+            if (currentIndex > 0) { currentIndex--; renderCurrentQuestion(); saveProgress(); }
+        });
+        document.getElementById("nextClean")?.addEventListener("click", () => {
+            if (currentIndex < questions.length-1) { currentIndex++; renderCurrentQuestion(); saveProgress(); }
+            else if (userAnswers[currentIndex] !== null && currentIndex === questions.length-1) renderResults();
+        });
+        updateStats();
+    }
+
+    function renderResults() {
+        let score = 0;
+        for (let i=0; i<questions.length; i++) if (userAnswers[i] === questions[i].correct) score++;
+        const percent = Math.round((score/questions.length)*100);
+        let verdict = percent>=85 ? `🏆 ${SUBJECT_NAME} Master` : percent>=70 ? `🖨️ Advanced ${SUBJECT_NAME} Practitioner` : percent>=55 ? `📘 Emerging ${SUBJECT_NAME} Learner` : `🌱 ${SUBJECT_NAME} Explorer`;
+        quizDynamicDiv.innerHTML = `<div class="quiz-card result-container"><div class="score-circle"><div class="score-number">${score}</div><div style="color:#94a3b8;">/ ${questions.length}</div></div><div class="verdict">${verdict}</div><p style="color:#cbd5e6; margin:12px 0;">Accuracy: ${percent}% • Mastery Level</p><div class="btn restart-btn" id="restartBtn">⟳ Restart Exam</div></div>`;
+        document.getElementById("restartBtn")?.addEventListener("click", () => {
+            resetQuiz();
+            startQuiz();
+        });
+        const titleDiv = document.getElementById("dynamicTitle");
+        if (titleDiv) titleDiv.textContent = "Quiz Completed";
+    }
+
+    function showNotes(returnView) {
+        const appRoot = document.getElementById("appRoot");
+        appRoot.innerHTML = `
+            <div class="quiz-header">
+                <div class="badge-row">
+                    <div class="title">📘 Short Notes</div>
+                </div>
+            </div>
+            <div class="notes-page">
+                ${SHORT_NOTES_HTML}
+                <button class="back-btn" id="backFromNotes">← Back</button>
+            </div>
+            <footer>📚 Based on course material</footer>
+        `;
+        document.getElementById("backFromNotes").onclick = () => {
+            if (returnView === 'landing') renderLanding();
+            else if (returnView === 'resume') renderResume();
+            else if (returnView === 'quiz') startQuiz(true);
+            else renderLanding();
+        };
+    }
+
+    // ---------- INITIAL RENDERING ----------
+    function initApp() {
+        if (hasProgress()) {
+            renderResume();
+        } else {
+            renderLanding();
+        }
+    }
+    initApp();
+</script>
+</body>
+</html>
